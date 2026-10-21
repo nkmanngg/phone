@@ -1,0 +1,6106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>서출구의 iPhone</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .phone {
+    width: 360px; height: 720px; background: #000; border-radius: 44px;
+    padding: 12px; box-shadow: 0 30px 60px rgba(0,0,0,.5), inset 0 0 0 2px #333;
+    position: relative;
+  }
+  .screen {
+  width: 100%;
+  height: 100%;
+  background: #f2f2f7;
+  border-radius: 34px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+  .notch {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 112px;
+  height: 30px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 12px;
+}
+
+/* 전면 카메라 렌즈 */
+.notch::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #52617b 0%,
+    #182338 35%,
+    #050505 75%
+  );
+  border: 1px solid #202020;
+  box-shadow: 0 0 2px rgba(100, 140, 255, 0.4);
+}
+
+  .content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: 44px;
+  box-sizing: border-box;
+}
+  .content::-webkit-scrollbar { display: none; }
+
+  /* 홈 화면 (아이폰 스타일) */
+  .home {
+    min-height: 100%; padding: 16px 18px 0; position: relative;
+    background: transparent;
+  }
+  .home .widget { margin: 22px 4px 6px; text-align: center; color: #222; }
+  .home .widget .date { font-size: 13px; font-weight: 600; color: #444; }
+  .home .widget .time { font-size: 46px; font-weight: 300; line-height: 1.1; }
+  .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 6px; margin-top: 28px; justify-items: center; }
+  .app { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; width: 66px; }
+  .app .icon {
+    width: 60px; height: 60px; border-radius: 14px; display: flex;
+    align-items: center; justify-content: center; font-size: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12); transition: transform .15s; overflow: hidden;
+  }
+  .app:active .icon { transform: scale(.9); }
+  .app span { font-size: 11px; color: #222; white-space: nowrap; }
+  .pagedots { position: absolute; left: 0; right: 0; bottom: 122px; display: flex; justify-content: center; gap: 6px; }
+  .pagedots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,.2); }
+  .pagedots i.on { background: #444; }
+  .dock {
+    position: absolute; left: 10px; right: 10px; bottom: 26px; height: 84px;
+    background: rgba(255,255,255,.45); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-radius: 28px; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; justify-items: center;
+  }
+  .dock .app span { display: none; }
+  .dock .app .icon { width: 58px; height: 58px; }
+
+  /* 공통 헤더 */
+  .header {
+  min-height: 48px;
+  padding: 8px 12px;
+  background: rgba(248, 248, 250, 0.96);
+  border-bottom: 1px solid #d1d1d6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header .back {
+  color: #007aff;
+  font-size: 17px;
+  cursor: pointer;
+  padding: 4px 0;
+  white-space: nowrap;
+}
+
+.header .title {
+  font-size: 17px;
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+  margin-right: 55px;
+}
+
+  /* 문자 */
+  .thread {
+    display: flex; gap: 12px; padding: 12px 16px; background: #fff;
+    border-bottom: 1px solid #eee; cursor: pointer;
+  }
+  .thread:active { background: #e5e5ea; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%; color: #fff; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px;
+  }
+  .thread .info { flex: 1; min-width: 0; }
+  .thread .row { display: flex; justify-content: space-between; align-items: center; }
+  .thread .name { font-weight: 600; font-size: 15px; }
+  .thread .time { font-size: 12px; color: #8e8e93; }
+  .thread .preview { font-size: 13px; color: #8e8e93; margin-top: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .chat {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+  .bubble {
+  display: block;
+  width: fit-content;
+  max-width: 75%;
+  padding: 9px 13px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: keep-all;
+  overflow: visible;
+  overflow-wrap: break-word;
+  height: auto;
+  max-height: none;
+}
+  .bubble.them { background: #e9e9eb; color: #000; align-self: flex-start; border-bottom-left-radius: 4px; }
+  .bubble.me { background: #007aff; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .stamp { text-align: center; font-size: 11px; color: #8e8e93; margin: 10px 0 4px; }
+
+  /* 메모 */
+  .note-item { background: #fff; padding: 12px 16px; border-bottom: 1px solid #eee; cursor: pointer; }
+  .note-item:active { background: #e5e5ea; }
+  .note-item .t { font-weight: 600; font-size: 15px; }
+  .note-item .d { font-size: 12px; color: #8e8e93; margin: 2px 0 4px; }
+  .note-item .p { font-size: 13px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .note-body { background: #fffbea; padding: 18px 20px; min-height: 100%; font-size: 15px; line-height: 1.7; white-space: pre-wrap; color: #333; }
+  .note-body .nd { font-size: 12px; color: #aaa; margin-bottom: 10px; }
+
+  /* 사진 */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; }
+  .photo {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    font-size: 38px; cursor: pointer; position: relative;
+  }
+  .photo .cap { position: absolute; bottom: 0; left: 0; right: 0; font-size: 10px; color: #fff;
+    background: linear-gradient(transparent, rgba(0,0,0,.45)); padding: 12px 4px 3px; text-align: center; }
+  .viewer { background: #000; flex: 1; display: flex; flex-direction: column; }
+  .viewer .big { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 110px; }
+  .viewer .meta { color: #ddd; padding: 14px 18px; font-size: 13px; background: #111; line-height: 1.6; }
+  .viewer .meta b { color: #fff; }
+
+  .hint {
+    position: absolute; bottom: 10px; left: 0; right: 0; text-align: center;
+    font-size: 11px; color: #999; pointer-events: none;
+  }
+  .homebar {
+    width: 120px; height: 5px; background: #111; border-radius: 3px;
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); cursor: pointer; z-index: 20;
+  }
+
+/* iOS-inspired system app iconography */
+.app .icon { position: relative; font-size: 0; isolation: isolate; }
+.app .icon::before, .app .icon::after { position: absolute; content: ""; display: block; }
+.app .icon { border-radius: 14px; overflow: hidden; }
+.apps .app:nth-child(1) .icon, .dock .app:nth-child(1) .icon { background: linear-gradient(145deg,#43e879,#08b84b) !important; }
+.apps .app:nth-child(2) .icon { background: linear-gradient(145deg,#fff8ad,#ffd52a) !important; }
+.apps .app:nth-child(3) .icon { background: linear-gradient(145deg,#ff9a9e,#f857a6) !important; }
+.apps .app:nth-child(4) .icon { background: linear-gradient(145deg,#8fd3ff,#2584ff) !important; }
+.dock .app:nth-child(2) .icon { background: linear-gradient(145deg,#69d7ff,#1685ed) !important; }
+.dock .app:nth-child(3) .icon { background: linear-gradient(145deg,#6ff58d,#16c95a) !important; }
+.dock .app:nth-child(4) .icon { background: linear-gradient(145deg,#ff7bb0,#f04481) !important; }
+/* White handset, compass, message bubble, music note */
+.dock .app:nth-child(1) .icon::before {
+  content:""; width:28px; height:28px; left:16px; top:15px; border:5px solid #fff;
+  border-top-color:transparent; border-right-color:transparent; border-radius:50%;
+  transform:rotate(-35deg);
+}
+.dock .app:nth-child(1) .icon::after {
+  width:11px; height:8px; left:12px; top:14px; background:#fff; border-radius:3px;
+  box-shadow:20px 22px 0 -1px #fff; transform:rotate(-38deg);
+}
+.dock .app:nth-child(2) .icon::before {
+  inset:10px; border-radius:50%; background:#fff; border:2px solid rgba(255,255,255,.85);
+}
+.dock .app:nth-child(2) .icon::after {
+  width:0;height:0;left:25px;top:12px;border-left:6px solid transparent;border-right:6px solid transparent;
+  border-bottom:24px solid #1685ed; transform:rotate(32deg);
+  filter:drop-shadow(0 0 1px #fff);
+}
+.dock .app:nth-child(3) .icon::before {
+  width:36px;height:25px;left:11px;top:16px;background:#fff;border-radius:8px;
+}
+.dock .app:nth-child(3) .icon::after {
+  width:10px;height:10px;left:16px;top:34px;background:#fff;transform:rotate(35deg);border-radius:2px;
+}
+.dock .app:nth-child(4) .icon::before {
+  width:12px;height:32px;left:24px;top:12px;background:#fff;border-radius:3px 3px 6px 6px;
+  transform:rotate(-8deg);
+}
+.dock .app:nth-child(4) .icon::after {
+  width:17px;height:7px;left:24px;top:11px;background:#fff;border-radius:3px;transform:rotate(-8deg);
+}
+/* Settings gear */
+.apps .app:nth-child(7) .icon { background:linear-gradient(145deg,#aeb2b8,#686d75) !important; }
+.apps .app:nth-child(7) .icon::before {
+  width:27px;height:27px;left:16px;top:16px;border:5px solid #f7f7f7;border-radius:50%;
+  box-shadow:0 0 0 4px rgba(255,255,255,.16);
+}
+.apps .app:nth-child(7) .icon::after {
+  width:9px;height:9px;left:25px;top:25px;background:#f7f7f7;border-radius:50%;
+  box-shadow:0 -19px 0 -2px #f7f7f7,0 19px 0 -2px #f7f7f7,19px 0 0 -2px #f7f7f7,-19px 0 0 -2px #f7f7f7,
+  13px 13px 0 -2px #f7f7f7,-13px -13px 0 -2px #f7f7f7,13px -13px 0 -2px #f7f7f7,-13px 13px 0 -2px #f7f7f7;
+}
+/* Calendar, photos and notes get app-like pictograms */
+.apps .app:nth-child(2) .icon::before {
+  content:"29"; font:700 25px -apple-system,BlinkMacSystemFont,sans-serif;color:#222;
+  left:0;right:0;top:20px;text-align:center;background:#fff;height:40px;padding-top:4px;
+}
+.apps .app:nth-child(2) .icon::after {
+  content:"토요일";font:600 8px -apple-system,BlinkMacSystemFont,sans-serif;color:#f44;
+  left:0;right:0;top:5px;text-align:center;background:#fff;height:16px;
+}
+.apps .app:nth-child(3) .icon { background:#fff !important; }
+.apps .app:nth-child(3) .icon::before {
+  width:23px;height:23px;left:18px;top:8px;border-radius:50%;
+  background:conic-gradient(#ff453a 0 45deg,#ffd60a 45deg 90deg,#30d158 90deg 135deg,#64d2ff 135deg 180deg,#0a84ff 180deg 225deg,#bf5af2 225deg 270deg,#ff375f 270deg 315deg,#ff9f0a 315deg);
+}
+.apps .app:nth-child(3) .icon::after {
+  width:23px;height:23px;left:18px;top:29px;border-radius:50%;
+  background:conic-gradient(#ff453a,#ffd60a,#30d158,#64d2ff,#0a84ff,#bf5af2,#ff375f,#ff9f0a);
+}
+.apps .app:nth-child(1) .icon::before {
+  width:29px;height:22px;left:15px;top:19px;border-radius:5px;background:#fff;
+}
+.apps .app:nth-child(1) .icon::after {
+  width:0;height:0;left:25px;top:21px;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:12px solid #39d66a;
+}
+.apps .app:nth-child(8) .icon { background:#fff !important; }
+.apps .app:nth-child(8) .icon::before {
+  content:"";left:12px;right:12px;top:10px;height:40px;border-radius:4px;
+  background:linear-gradient(to bottom,#ff453a 0 8px,#fff 8px 100%);border:1px solid #ddd;
+}
+.apps .app:nth-child(8) .icon::after {
+  content:"18";font:700 23px -apple-system,BlinkMacSystemFont,sans-serif;color:#222;left:0;right:0;top:21px;text-align:center;
+}
+
+  /* 문자 입력창 */
+.message-input-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f8f8fa;
+  border-top: 1px solid #e5e5ea;
+  flex-shrink: 0;
+}
+
+.message-input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #d1d1d6;
+  border-radius: 22px;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  background: white;
+}
+
+.message-input:focus {
+  border-color: #007aff;
+}
+
+.send-button {
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  background: #007aff;
+  color: white;
+  font-size: 19px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.send-button:active {
+  opacity: 0.7;
+}
+
+  .statusbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  padding: 12px 24px 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 600;
+  color: #000;
+  z-index: 100;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 17px;
+}
+
+.signal {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 13px;
+}
+
+.signal i {
+  display: block;
+  width: 3px;
+  background: #000;
+  border-radius: 1px;
+}
+
+.signal i:nth-child(1) { height: 4px; }
+.signal i:nth-child(2) { height: 7px; }
+.signal i:nth-child(3) { height: 10px; }
+.signal i:nth-child(4) { height: 13px; }
+
+.wifi {
+  width: 17px;
+  height: 15px;
+  fill: none;
+  stroke: #000;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.battery {
+  width: 24px;
+  height: 12px;
+  border: 1.5px solid #000;
+  border-radius: 3px;
+  padding: 2px;
+  position: relative;
+  margin-left: 1px;
+}
+
+.battery::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  top: 3px;
+  width: 2px;
+  height: 4px;
+  background: #000;
+  border-radius: 0 2px 2px 0;
+}
+
+.battery-level {
+  display: block;
+  width: 79%;
+  height: 100%;
+  background: #000;
+  border-radius: 1px;
+}
+
+  .weather-screen {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  color: #fff;
+  text-align: center;
+  padding: 12px 16px 28px;
+  background: transparent;
+  scrollbar-width: none;
+}
+
+.weather-screen::-webkit-scrollbar {
+  display: none;
+}
+
+.weather-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  margin-bottom: 12px;
+}
+
+.weather-nav button {
+  border: 0;
+  background: rgba(255,255,255,.16);
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.weather-nav-label {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: .95;
+}
+
+.weather-main-city {
+  font-size: 31px;
+  font-weight: 400;
+  letter-spacing: -.7px;
+  margin-top: 5px;
+}
+
+.weather-main-desc {
+  font-size: 16px;
+  margin-top: 3px;
+  color: rgba(255,255,255,.92);
+}
+
+.weather-main-temp {
+  font-size: 82px;
+  line-height: 1.12;
+  font-weight: 200;
+  letter-spacing: -5px;
+  margin: 0;
+}
+
+.weather-high-low {
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.weather-art {
+  height: 86px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 69px;
+  margin-top: 3px;
+  filter: drop-shadow(0 5px 9px rgba(30,65,100,.12));
+}
+
+.weather-panel {
+  margin-top: 22px;
+  padding: 16px 14px;
+  text-align: left;
+  border-radius: 20px;
+  background: rgba(28, 65, 113, .22);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 5px 18px rgba(24,61,110,.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.weather-panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.75);
+  margin-bottom: 14px;
+  letter-spacing: .2px;
+}
+
+.weather-hourly {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  text-align: center;
+}
+
+.weather-hour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  font-size: 12px;
+}
+
+.weather-hour .hour-time {
+  color: rgba(255,255,255,.85);
+  white-space: nowrap;
+}
+
+.weather-hour .hour-icon {
+  font-size: 22px;
+  height: 27px;
+  display: flex;
+  align-items: center;
+}
+
+.weather-hour .hour-temp {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.weather-summary {
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(255,255,255,.95);
+  margin-top: 13px;
+}
+
+.weather-day {
+  display: grid;
+  grid-template-columns: 48px 26px 25px minmax(35px, 1fr) 25px;
+  align-items: center;
+  gap: 5px;
+  min-height: 39px;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.14);
+}
+
+.weather-day:last-child {
+  border-bottom: 0;
+}
+
+.weather-day-name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.weather-day-icon {
+  font-size: 17px;
+  text-align: center;
+}
+
+.weather-day-low,
+.weather-day-high {
+  font-size: 12px;
+  color: rgba(255,255,255,.88);
+  text-align: center;
+}
+
+.weather-range {
+  height: 4px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.23);
+  position: relative;
+  overflow: hidden;
+}
+
+.weather-range::before {
+  content: "";
+  position: absolute;
+  left: 18%;
+  width: 65%;
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #9bd3f8, #ffe08b);
+}
+
+.weather-footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 20px;
+  padding: 13px 10px 5px;
+  border-top: 1px solid rgba(255,255,255,.25);
+}
+
+.weather-footer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: rgba(255,255,255,.9);
+  font-size: 10px;
+}
+
+.weather-footer-item .footer-icon {
+  font-size: 20px;
+}
+
+.weather-footer-item.active {
+  color: #fff;
+  font-weight: 700;
+}
+
+  .calendar-screen {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: #f2f2f7;
+  color: #1c1c1e;
+  scrollbar-width: none;
+}
+
+.calendar-screen::-webkit-scrollbar {
+  display: none;
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 10px;
+  background: rgba(242,242,247,.97);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.calendar-nav button {
+  border: 0;
+  background: transparent;
+  color: #007aff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.calendar-nav .calendar-nav-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1c1c1e;
+}
+
+.calendar-month-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 18px 12px;
+}
+
+.calendar-month-heading strong {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -.6px;
+}
+
+.calendar-month-heading button {
+  border: 0;
+  background: #e5e5ea;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  color: #007aff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.calendar-weekdays,
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  text-align: center;
+}
+
+.calendar-weekdays {
+  padding: 0 8px 8px;
+  color: #8e8e93;
+  font-size: 12px;
+  border-bottom: 1px solid #d1d1d6;
+}
+
+.calendar-weekdays span:first-child {
+  color: #ff3b30;
+}
+
+.calendar-weekdays span:last-child {
+  color: #007aff;
+}
+
+.calendar-days {
+  padding: 8px;
+  row-gap: 5px;
+}
+
+.calendar-day {
+  min-width: 0;
+  height: 49px;
+  border: 0;
+  background: transparent;
+  color: #1c1c1e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 3px;
+  gap: 4px;
+  font-size: 15px;
+  cursor: pointer;
+  border-radius: 9px;
+}
+
+.calendar-day.outside {
+  color: #c7c7cc;
+}
+
+.calendar-day.today .day-number {
+  background: #ff3b30;
+  color: white;
+}
+
+.calendar-day.selected .day-number {
+  background: #007aff;
+  color: white;
+}
+
+.day-number {
+  width: 27px;
+  height: 27px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+.calendar-dots {
+  display: flex;
+  gap: 3px;
+  height: 5px;
+  justify-content: center;
+}
+
+.calendar-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #007aff;
+}
+
+.calendar-events {
+  background: white;
+  margin-top: 9px;
+  padding: 16px;
+  min-height: 160px;
+  border-top: 1px solid #e5e5ea;
+}
+
+.calendar-events-heading {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.calendar-event {
+  display: flex;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid #f0f0f3;
+}
+
+.calendar-event:last-child {
+  border-bottom: 0;
+}
+
+.calendar-event-bar {
+  width: 4px;
+  border-radius: 4px;
+  background: #007aff;
+  flex-shrink: 0;
+}
+
+.calendar-event-bar.purple {
+  background: #af52de;
+}
+
+.calendar-event-bar.orange {
+  background: #ff9500;
+}
+
+.calendar-event-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.calendar-event-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.calendar-event-time {
+  font-size: 12px;
+  color: #8e8e93;
+  margin-top: 4px;
+}
+
+.calendar-empty {
+  font-size: 14px;
+  color: #8e8e93;
+  padding: 18px 0;
+}
+
+
+
+.calendar-bottom button {
+  border: 0;
+  background: transparent;
+  color: #007aff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.calendar-bottom .calendar-add {
+  font-size: 25px;
+  font-weight: 400;
+}
+
+.calendar-add-form {
+  display: flex;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.calendar-add-form input {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid #d1d1d6;
+  border-radius: 9px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.calendar-add-form button {
+  border: 0;
+  border-radius: 9px;
+  padding: 0 12px;
+  background: #007aff;
+  color: white;
+}
+
+  .lock-screen {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 38px 24px 30px;
+  text-align: center;
+  color: #25243a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 24px;
+}
+
+.lock-date {
+  font-size: 17px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.lock-clock {
+  font-size: 76px;
+  font-weight: 300;
+  letter-spacing: -3px;
+  margin-top: 4px;
+}
+
+.lock-message {
+  margin-top: 35px;
+  font-size: 14px;
+  color: #55516a;
+}
+
+.lock-form {
+  width: 100%;
+  max-width: 260px;
+  margin-top: 20px;
+}
+
+.lock-dots {
+  font-size: 22px;
+  letter-spacing: 7px;
+  margin-bottom: 18px;
+}
+
+.lock-pass-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ffffffaa;
+  border-radius: 14px;
+  background: #ffffff80;
+  padding: 13px;
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 8px;
+  outline: none;
+}
+
+.lock-unlock-button {
+  width: 100%;
+  margin-top: 14px;
+  padding: 13px;
+  border: none;
+  border-radius: 14px;
+  background: #ffffffbb;
+  color: #25243a;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.lock-error {
+  min-height: 20px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #b42332;
+}
+
+  .ios-lock-screen {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100%;
+  width: 100%;
+  padding: 35px 24px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  text-align: center;
+  background: linear-gradient(
+    160deg,
+    #8da9d6 0%,
+    #c1b6e8 48%,
+    #edc6dc 100%
+  );
+}
+
+.ios-lock-date {
+  font-size: 17px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.ios-lock-clock {
+  font-size: 78px;
+  font-weight: 300;
+  letter-spacing: -3px;
+  line-height: 1.2;
+  margin-top: 4px;
+}
+
+.lock-tap-hint {
+  margin-top: auto;
+  margin-bottom: 125px;
+  font-size: 14px;
+  color: #ffffffdf;
+}
+
+.ios-lock-bottom {
+  position: absolute;
+  bottom: 30px;
+  left: 28px;
+  right: 28px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.lock-bottom-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ffffff35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+}
+
+.passcode-title {
+  font-size: 17px;
+  margin-top: 20px;
+  margin-bottom: 18px;
+}
+
+.passcode-dots {
+  display: flex;
+  gap: 17px;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+
+.passcode-dot {
+  width: 10px;
+  height: 10px;
+  border: 1px solid white;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.passcode-dot.filled {
+  background: white;
+}
+
+.number-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 66px);
+  gap: 12px 20px;
+  justify-content: center;
+}
+
+.number-key {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  border: 1px solid #ffffff65;
+  background: #ffffff28;
+  color: white;
+  font-size: 28px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.number-key:active {
+  background: #ffffff70;
+}
+
+.number-key-placeholder {
+  width: 66px;
+  height: 66px;
+}
+
+.delete-key {
+  width: 66px;
+  height: 66px;
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 13px;
+}
+
+.passcode-error {
+  min-height: 20px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: white;
+}
+
+.ios-lock-screen.passcode-open .ios-lock-clock {
+  font-size: 54px;
+}
+
+.ios-lock-screen.passcode-open .ios-lock-bottom {
+  display: none;
+}
+
+  .passcode-confirm {
+  width: 100%;
+  max-width: 240px;
+  margin-top: 16px;
+  padding: 13px;
+  border: none;
+  border-radius: 14px;
+  background: #ffffffd9;
+  color: #25243a;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.passcode-confirm:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+  .passcode-bottom-row {
+  display: grid;
+  grid-template-columns: repeat(3, 66px);
+  gap: 12px 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 확인 버튼을 숫자 키와 같은 크기로 */
+.passcode-confirm {
+  width: 66px;
+  height: 66px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #ffffff65;
+  border-radius: 50%;
+  background: #ffffff28;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.passcode-confirm:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.passcode-confirm:not(:disabled):active {
+  background: #ffffff70;
+}
+
+/* 암호가 틀렸을 때 흔들리는 효과 */
+@keyframes passcode-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-12px);
+  }
+  40%, 80% {
+    transform: translateX(12px);
+  }
+}
+
+.ios-lock-screen.passcode-shake {
+  animation: passcode-shake 0.45s ease-in-out;
+}
+
+.passcode-error {
+  min-height: 20px;
+  margin-top: 10px;
+  color: #ff453a;
+  font-size: 13px;
+  text-align: center;
+}
+
+  .music-app {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  color: #181818;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  box-sizing: border-box;
+}
+
+.music-topbar {
+  padding-top: 55px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.music-eyebrow {
+  color: #fa3155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.music-topbar h1 {
+  font-size: 32px;
+  margin: 3px 0 0;
+  font-weight: 750;
+}
+
+.music-topbar button {
+  white-space: nowrap;
+}
+
+
+.music-welcome {
+  background: linear-gradient(135deg, #fa3155, #a51f68);
+  color: white;
+  padding: 23px;
+  border-radius: 20px;
+  margin-bottom: 28px;
+}
+
+.music-welcome-label {
+  font-size: 12px;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.music-welcome h2 {
+  font-size: 25px;
+  line-height: 1.35;
+  margin: 12px 0;
+}
+
+.music-welcome p {
+  font-size: 13px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.music-section-title {
+  font-size: 21px;
+  margin: 0 0 14px;
+}
+
+.music-song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.music-scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px 20px 20px;
+  box-sizing: border-box;
+}
+
+.music-scroll-area::-webkit-scrollbar {
+  display: none;
+}
+
+.music-song {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.music-cover {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 27px;
+}
+
+.music-song-info,
+.music-player-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.music-song-title {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.music-song-artist {
+  font-size: 12px;
+  color: #85858b;
+  margin-top: 5px;
+}
+
+.music-more {
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 17px;
+  padding: 8px;
+}
+
+.music-player-bar {
+  position: relative;
+  flex-shrink: 0;
+  margin: 0 10px 8px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #f3f0f2;
+  box-shadow: 0 2px 10px #00000012;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.music-mini-cover {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.music-mini-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
+}
+
+.music-play-icon {
+  font-size: 19px;
+  padding: 0 8px;
+}
+
+.music-tabbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 8px 0 12px;
+}
+
+.music-tabbar button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: #85858b;
+  font-size: 10px;
+}
+
+.music-tabbar button span {
+  font-size: 21px;
+}
+
+.music-tabbar button.active {
+  color: #fa3155;
+}
+  .music-topbar button {
+  cursor: pointer;
+}
+
+.music-song {
+  cursor: pointer;
+}
+
+.music-more,
+.music-tabbar button,
+.music-player-bar {
+  cursor: pointer;
+}
+
+.music-cover img,
+.music-mini-cover img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+  .settings-app {
+  background: #f2f2f7;
+  color: #111;
+  min-height: 100%;
+  padding: 14px 16px 30px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.settings-header {
+  margin-bottom: 20px;
+}
+
+.settings-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.settings-header h2 {
+  font-size: 28px;
+  font-weight: 750;
+  margin: 8px 0 18px;
+  text-align: left;
+}
+
+.settings-header button {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #007aff;
+  font-size: 16px;
+}
+
+.settings-search {
+  height: 38px;
+  border-radius: 11px;
+  background: #e3e3e8;
+  color: #777780;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  margin-bottom: 22px;
+  font-size: 16px;
+}
+
+.settings-search-icon {
+  font-size: 23px;
+}
+
+.settings-group {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.settings-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 24px;
+}
+
+.settings-profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-profile strong {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.settings-profile p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #777;
+}
+
+.settings-chevron {
+  color: #b8b8bd;
+  font-size: 24px;
+  margin-left: auto;
+}
+
+.settings-avatar {
+  background: #d8d8dd;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  font-size: 25px;
+}
+
+.settings-profile > span {
+  margin-left: auto;
+  color: #aaa;
+}
+
+.settings-row {
+  min-height: 53px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 13px;
+  position: relative;
+  font-size: 15px;
+}
+
+.settings-row + .settings-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 56px;
+  right: 0;
+  height: 1px;
+  background: #e5e5ea;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-row > span:first-child {
+  width: 25px;
+  font-size: 19px;
+}
+
+.settings-row > span:last-child {
+  margin-left: auto;
+  color: #888;
+  font-size: 13px;
+}
+  .settings-app {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.settings-app::-webkit-scrollbar {
+  display: none;
+}
+
+.settings-icon {
+  width: 29px;
+  height: 29px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 19px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.settings-icon.orange { background: #ff9f0a; }
+.settings-icon.blue { background: #087fff; }
+.settings-icon.green { background: #34c759; }
+.settings-icon.red { background: #ff3b30; }
+.settings-icon.gray { background: #8e8e93; }
+.settings-icon.multicolor {
+  background: linear-gradient(135deg, #56c9f5, #9a7aff, #ff7aa8);
+}
+
+.settings-label {
+  flex: 1;
+}
+
+.settings-detail,
+.settings-status {
+  color: #8e8e93;
+  font-size: 14px;
+}
+
+.settings-switch {
+  width: 42px;
+  height: 25px;
+  border-radius: 20px;
+  background: #e5e5ea;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.settings-switch::after {
+  content: "";
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  box-shadow: 0 1px 2px #0002;
+}
+
+  .phone-icon {
+  background: #34c759;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+}
+
+.phone-app {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 48px 16px 0;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.phone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.phone-header h1 {
+  font-size: 30px;
+  margin: 12px 0 20px;
+}
+
+.phone-header > span {
+  color: #007aff;
+}
+
+.phone-search {
+  background: #f1f1f6;
+  border-radius: 10px;
+  padding: 10px;
+  color: #888;
+  margin-bottom: 14px;
+}
+
+.phone-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.phone-filter button {
+  border: none;
+  border-radius: 18px;
+  padding: 7px 18px;
+  background: #f1f1f6;
+  cursor: pointer;
+}
+
+.phone-filter button.selected {
+  background: #333;
+  color: white;
+}
+
+.call-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.call-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #e5e5ea;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.call-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.call-info strong {
+  font-size: 15px;
+}
+
+.call-info p {
+  margin: 4px 0 0;
+  color: #888;
+  font-size: 12px;
+}
+
+.call-row.missed .call-info strong,
+.call-row.missed .call-info p {
+  color: #ff3b30;
+}
+
+.call-time {
+  color: #888;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+
+
+.phone-tabbar div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: #777;
+}
+
+.phone-tabbar div span {
+  font-size: 20px;
+}
+
+.phone-tabbar div.active {
+  color: #007aff;
+}
+
+.phone-home-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #f1f1f6;
+  cursor: pointer;
+}
+
+  .phone-back {
+  margin-bottom: 12px;
+}
+
+.phone-back button {
+  border: none;
+  background: transparent;
+  color: #007aff;
+  font-size: 16px;
+  padding: 0;
+  cursor: pointer;
+}
+
+  .phone-scroll-area {
+  flex: 1 1 0;
+  height: 0;
+  min-height: 0;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+
+.phone-scroll-area::-webkit-scrollbar {
+  display: none;
+}
+
+.phone-tabbar {
+  position: relative;
+  inset: auto;
+  flex: 0 0 auto;
+  display: flex;
+  width: calc(100% + 32px);
+  margin-left: -16px;
+  box-sizing: border-box;
+  justify-content: space-around;
+  background: #f9f9fb;
+  border-top: 1px solid #e5e5ea;
+  padding: 12px 4px 24px;
+  z-index: 5;
+}
+
+  .browser-app {
+  background: #fff;
+}
+
+.google-search {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 18px;
+}
+
+.google-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 24px;
+  font-size: 15px;
+}
+
+.google-search button {
+  border: none;
+  border-radius: 20px;
+  background: #4285f4;
+  color: white;
+  padding: 0 16px;
+}
+
+.google-results {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.google-result {
+  padding: 14px 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.google-result strong {
+  color: #1a73e8;
+}
+
+.google-result p {
+  color: #555;
+  font-size: 14px;
+}
+
+.google-result a {
+  color: #1a73e8;
+  font-size: 14px;
+  text-decoration: none;
+}.browser-app {
+  background: #fff;
+}
+
+.google-search {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 18px;
+}
+
+.google-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 24px;
+  font-size: 15px;
+}
+
+.google-search button {
+  border: none;
+  border-radius: 20px;
+  background: #4285f4;
+  color: white;
+  padding: 0 16px;
+}
+
+.google-results {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.google-result {
+  padding: 14px 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.google-result strong {
+  color: #1a73e8;
+}
+
+.google-result p {
+  color: #555;
+  font-size: 14px;
+}
+
+.google-result a {
+  color: #1a73e8;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+  .history-heading {
+  color: #777;
+  font-size: 13px;
+}
+
+.history-item button {
+  width: 100%;
+  padding: 12px 4px;
+  border: none;
+  border-bottom: 1px solid #eee;
+  background: white;
+  text-align: left;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.history-clock {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid #80868b;
+  border-radius: 50%;
+  color: #80868b;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+  .fake-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px;
+  margin: 8px 0 16px;
+  border: 1px solid #dadce0;
+  border-radius: 26px;
+  background: white;
+  color: #5f6368;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fake-search svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: #5f6368;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.browser-history {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.browser-history-title {
+  margin: 4px 12px 8px;
+  color: #5f6368;
+  font-size: 13px;
+}
+
+.browser-history-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 48px;
+  padding: 0 12px;
+  border-bottom: 1px solid #f1f3f4;
+  color: #202124;
+  font-size: 15px;
+}
+
+.browser-history-item span {
+  color: #888;
+}
+
+  .google-logo-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 0 22px;
+}
+
+.google-logo {
+  display: block;
+  width: 150px;
+  height: auto;
+  object-fit: contain;
+}
+
+  .browser-app.search-mode .phone-back {
+  margin-bottom: 8px;
+}
+
+.browser-app.search-mode .fake-search {
+  margin-top: 0;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.browser-app.search-mode .browser-history {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.browser-app.search-mode .browser-history-item:first-child {
+  border-top: 1px solid #f1f3f4;
+}
+
+  .history-query {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-date {
+  margin-left: auto;
+  padding-left: 6px;
+  color: #9aa0a6;
+  font-size: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+  .history-delete {
+  width: 24px;
+  height: 24px;
+  margin-left: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #80868b;
+  font-size: 19px;
+  font-weight: 300;
+  line-height: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+  .contact-avatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #e5e5ea;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.contact-avatar svg {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+  .contacts-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin: 8px 0 14px;
+  border-radius: 10px;
+  background: #e5e5ea;
+  color: #8e8e93;
+  font-size: 17px;
+}
+
+.contacts-search svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: #8e8e93;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.chatgpt-home-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.app:has(.chatgpt-home-logo) .icon {
+  background: transparent !important;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+  .chatgpt-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.chatgpt-icon img {
+  width: 44px;
+  height: 44px;
+}
+
+.chatgpt-app {
+  background: #fff;
+  color: #222;
+}
+
+.chatgpt-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  border-bottom: 1px solid #eee;
+}
+
+.chatgpt-topbar button {
+  border: none;
+  background: transparent;
+  color: #333;
+  font-size: 15px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.chatgpt-topbar strong {
+  font-size: 17px;
+}
+
+.chatgpt-mark {
+  font-size: 23px;
+}
+
+.chatgpt-heading {
+  padding: 22px 4px 10px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.chatgpt-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.chatgpt-history-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 6px;
+  border: none;
+  border-bottom: 1px solid #f0f0f0;
+  background: white;
+  text-align: left;
+  color: #222;
+  cursor: pointer;
+}
+
+.chatgpt-chat-icon {
+  color: #777;
+  font-size: 19px;
+}
+
+.chatgpt-chat-title {
+  flex: 1;
+  font-size: 15px;
+}
+
+.chatgpt-date {
+  color: #999;
+  font-size: 11px;
+}
+
+.chatgpt-conversation-title {
+  padding: 14px 0;
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+}
+
+.chatgpt-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 0;
+}
+
+.chatgpt-message {
+  display: flex;
+  gap: 9px;
+  margin: 0 0 22px;
+  align-items: flex-start;
+}
+
+.chatgpt-message.user {
+  justify-content: flex-end;
+}
+
+.chatgpt-bubble {
+  max-width: 85%;
+  padding: 12px 14px;
+  border-radius: 17px;
+  background: #f2f2f2;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.chatgpt-message.user .chatgpt-bubble {
+  background: #e8e8e8;
+}
+
+.chatgpt-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  font-size: 17px;
+}
+
+.chatgpt-input-fake {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  border-radius: 26px;
+  color: #888;
+  font-size: 15px;
+}
+
+.chatgpt-send {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #222;
+  color: white;
+  font-size: 20px;
+}
+  .messages-app {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 8px 0 24px;
+  background: #f2f2f7;
+  color: #000;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.messages-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 20px 0;
+}
+
+.messages-edit,
+.messages-compose {
+  border: none;
+  background: transparent;
+  color: #007aff;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.messages-compose {
+  width: 34px;
+  height: 34px;
+  border: 2px solid #007aff;
+  border-radius: 50%;
+  font-size: 23px;
+  line-height: 25px;
+}
+
+.messages-heading {
+  margin: 12px 20px 18px;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 750;
+  letter-spacing: -1px;
+}
+
+.messages-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  margin: 0 16px 12px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background: #e3e3e8;
+  color: #77777f;
+  font-size: 16px;
+}
+
+.messages-search-icon {
+  font-size: 23px;
+  line-height: 1;
+}
+
+.messages-list {
+  background: #fff;
+}
+
+.messages-thread {
+  display: flex;
+  align-items: center;
+  min-height: 78px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  gap: 12px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.messages-avatar {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.messages-info {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 1px solid #e5e5ea;
+}
+
+.messages-row,
+.messages-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.messages-row {
+  margin-bottom: 5px;
+}
+
+.messages-name {
+  font-size: 17px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.messages-time {
+  flex-shrink: 0;
+  color: #8e8e93;
+  font-size: 13px;
+}
+
+.messages-preview {
+  min-width: 0;
+  color: #8e8e93;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.messages-chevron {
+  flex-shrink: 0;
+  color: #c7c7cc;
+  font-size: 23px;
+  line-height: 16px;
+}
+
+  .messages-thread {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 76px;
+  padding: 9px 16px;
+  box-sizing: border-box;
+  gap: 12px;
+  background: #fff;
+  border-bottom: none !important;
+}
+
+.messages-info {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: none !important;
+}
+
+/* 구분선은 프로필 오른쪽부터 화면 끝까지 */
+.messages-thread:not(:last-child) .messages-info::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #dedee3;
+  display: none;
+}
+
+  .ios-notes {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 8px 0 28px;
+  background: #f2f2f7;
+  color: #000;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.ios-notes-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 20px 0;
+}
+
+.ios-notes-back,
+.ios-notes-new {
+  border: none;
+  background: transparent;
+  color: #d6a800;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.ios-notes-new {
+  width: 34px;
+  height: 34px;
+  font-size: 25px;
+  line-height: 1;
+}
+
+.ios-notes-heading {
+  margin: 12px 20px 18px;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -0.7px;
+}
+
+.ios-notes-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  margin: 0 16px 18px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  background: #e3e3e8;
+  color: #77777f;
+  font-size: 16px;
+}
+
+.ios-notes-search-icon {
+  font-size: 23px;
+  line-height: 1;
+}
+
+.ios-notes-count {
+  margin: 0 20px 9px;
+  color: #8e8e93;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ios-notes-list {
+  margin: 0 16px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.ios-note-item {
+  position: relative;
+  border-bottom: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 70px;
+  padding: 13px 14px;
+  box-sizing: border-box;
+  background: #fff;
+  cursor: pointer;
+}
+
+.ios-note-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #e5e5ea;
+}
+
+.ios-note-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ios-note-title {
+  margin-bottom: 4px;
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ios-note-preview {
+  color: #8e8e93;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
+}
+
+.ios-note-date {
+  flex-shrink: 0;
+  color: #8e8e93;
+  font-size: 12px;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
+  /* iPhone 메모 상세 화면 */
+.ios-note-detail {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 8px 20px 40px;
+  background: #fff;
+  color: #1c1c1e;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.ios-note-detail-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  margin-bottom: 28px;
+}
+
+.ios-note-detail-back {
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: #d6a800;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.ios-note-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.ios-note-action {
+  border: none;
+  padding: 2px;
+  background: transparent;
+  color: #d6a800;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.ios-note-detail-date {
+  margin-bottom: 8px;
+  color: #8e8e93;
+  text-align: center;
+  font-size: 12px;
+}
+
+.ios-note-detail-title {
+  margin-bottom: 12px;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  overflow-wrap: anywhere;
+}
+
+.ios-note-detail-body {
+  color: #1c1c1e;
+  font-size: 17px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+/* YouTube 앱 */
+.youtube-app {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  color: #0f0f0f;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.youtube-app button {
+  cursor: pointer;
+}
+
+.yt-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 13px;
+  min-height: 43px;
+  flex-shrink: 0;
+}
+
+.yt-home-button,
+.yt-search-button {
+  border: none;
+  background: transparent;
+  color: #222;
+  font-size: 16px;
+}
+
+.yt-brand {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 19px;
+  letter-spacing: -0.7px;
+}
+
+.yt-logo {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 19px;
+  border-radius: 6px;
+  background: #ff0033;
+  color: white;
+  font-size: 12px;
+}
+
+.yt-search-button {
+  font-size: 27px;
+}
+
+.yt-categories {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 9px 12px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid #eee;
+}
+
+.yt-category {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: #f2f2f2;
+  font-size: 13px;
+}
+
+.yt-category.active {
+  background: #111;
+  color: #fff;
+}
+
+.yt-feed {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+
+.yt-video {
+  margin-bottom: 18px;
+  cursor: pointer;
+}
+
+.yt-thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yt-thumbnail-emoji {
+  font-size: 68px;
+}
+
+.yt-duration {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 3px 5px;
+  border-radius: 4px;
+  background: #000b;
+  color: white;
+  font-size: 11px;
+}
+
+.yt-video-info {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 11px 12px 0;
+}
+
+.yt-channel-avatar {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e5e5e5;
+  color: #555;
+  font-size: 17px;
+}
+
+.yt-video-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.yt-video-title {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.yt-video-meta {
+  margin-top: 5px;
+  color: #666;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.yt-more {
+  color: #555;
+  font-size: 20px;
+}
+
+.yt-bottom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-shrink: 0;
+  min-height: 53px;
+  padding: 3px 2px max(3px, env(safe-area-inset-bottom));
+  border-top: 1px solid #eee;
+  background: white;
+}
+
+.yt-nav-item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #333;
+  font-size: 19px;
+}
+
+.yt-nav-item small {
+  font-size: 9px;
+}
+
+.yt-nav-item.active {
+  color: #111;
+}
+
+.yt-nav-item.yt-plus {
+  font-size: 29px;
+}
+
+/* YouTube 동영상 상세 화면 */
+.yt-video-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  flex-shrink: 0;
+}
+
+.yt-video-topbar button {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+}
+
+.yt-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.yt-player > span {
+  font-size: 65px;
+}
+
+.yt-player-play {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #0009;
+  color: #fff;
+  font-size: 22px;
+}
+
+.yt-detail {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.yt-detail h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.yt-detail-meta {
+  color: #666;
+  font-size: 12px;
+}
+
+.yt-detail-channel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.yt-detail-channel strong {
+  flex: 1;
+  font-size: 14px;
+}
+
+.yt-detail-channel button {
+  border: none;
+  border-radius: 20px;
+  padding: 9px 15px;
+  background: #111;
+  color: white;
+  font-size: 13px;
+}
+
+.yt-detail-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.yt-detail-actions button {
+  border: none;
+  border-radius: 20px;
+  padding: 9px 12px;
+  background: #f2f2f2;
+  font-size: 12px;
+}
+
+.yt-description {
+  padding: 13px;
+  border-radius: 12px;
+  background: #f2f2f2;
+  font-size: 13px;
+  line-height: 1.6;
+}
+  /* 유튜브 화면 스크롤바 숨기기 */
+.youtube-app,
+.youtube-app .yt-feed {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.youtube-app::-webkit-scrollbar,
+.youtube-app *::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+  /* 유튜브 하단 홈 버튼 활성화 */
+.yt-bottom-nav .yt-nav-item.active {
+  color: #111;
+  font-weight: 700;
+}
+
+.yt-bottom-nav .yt-nav-item.active span {
+  color: #111;
+}
+
+.yt-bottom-nav .yt-nav-item.active small {
+  color: #111;
+  font-weight: 700;
+}
+
+  .yt-channel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.yt-channel-info strong {
+  font-size: 14px;
+}
+
+.yt-channel-info small {
+  color: #777;
+  font-size: 11px;
+}
+
+.yt-detail-channel .yt-subscribed {
+  border: none;
+  border-radius: 20px;
+  padding: 9px 14px;
+  background: #eeeeee;
+  color: #222;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: default;
+}
+
+.yt-description {
+  white-space: normal;
+  line-height: 1.7;
+}
+
+  /* 챗지피티 화면 스크롤바 숨기기 */
+.chatgpt-app,
+.chatgpt-app * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.chatgpt-app::-webkit-scrollbar,
+.chatgpt-app *::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+  .bubble {
+  white-space: pre-line;
+}
+
+  .note-check-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.5;
+  min-height: 0;
+}
+
+.note-check-item input[type="checkbox"] {
+  margin: 0 !important;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.note-check-item span {
+  margin: 0;
+  padding: 0;
+}
+
+ /* 장보기 체크리스트를 일반 메모 줄 간격에 맞추기 */
+.ios-note-detail-body .note-check-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0;
+  line-height: inherit;
+  min-height: unset;
+  height: auto;
+  font-size: inherit;
+}
+
+.ios-note-detail-body .note-check-item input[type="checkbox"] {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.ios-note-detail-body .note-check-item span {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+}
+
+  .ios-note-detail-body .note-checkbox {
+  width: 16px;
+  height: 16px;
+  margin: 0 6px 0 0;
+  vertical-align: middle;
+  accent-color: #999;
+}
+
+  .ios-note-detail-body .note-checkbox:checked {
+  accent-color: #999;
+}
+
+.ios-note-detail-body .note-checkbox:checked + span {
+  color: #999;
+  text-decoration: line-through;
+}
+
+  /* 전화 앱 아이콘만 수정 */
+.dock .app:nth-child(1) .icon {
+  background: linear-gradient(145deg, #62e987, #28c840) !important;
+  position: relative;
+}
+
+.dock .app:nth-child(1) .icon::before {
+  content: " " !important;
+  width: 27px;
+  height: 27px;
+  left: 15px;
+  top: 15px;
+  border: 5px solid white;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-radius: 50%;
+  transform: rotate(-35deg);
+}
+
+.dock .app:nth-child(1) .icon::after {
+  content: " " !important;
+  width: 11px;
+  height: 8px;
+  left: 12px;
+  top: 14px;
+  background: white;
+  border-radius: 3px;
+  transform: rotate(-38deg);
+  box-shadow: 20px 22px 0 -1px white;
+}
+
+  .app .icon:has(.phone-real-icon)::before,
+.app .icon:has(.phone-real-icon)::after {
+  content: none !important;
+  display: none !important;
+}
+
+.app .icon:has(.phone-real-icon) {
+  background: linear-gradient(145deg, #43e879, #08b84b) !important;
+}
+
+.phone-real-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+}
+
+.phone-real-icon svg {
+  display: block;
+  width: 40px;
+  height: 40px;
+}
+  .app .icon:has(.chrome-icon)::before,
+.app .icon:has(.chrome-icon)::after {
+  content: none !important;
+  display: none !important;
+}
+
+.chrome-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chrome-icon svg {
+  display: block;
+  width: 52px;
+  height: 52px;
+}
+  .app .icon:has(.chrome-logo-img)::before,
+.app .icon:has(.chrome-logo-img)::after {
+  content: none !important;
+  display: none !important;
+}
+
+.app .icon:has(.chrome-logo-img) {
+  background: #ffffff !important;
+}
+
+.chrome-logo-img {
+  display: block;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+  .apps .app .icon:has(.chrome-logo-img),
+.dock .app .icon:has(.chrome-logo-img) {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+.chrome-logo-img {
+  position: relative;
+  z-index: 10;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+  .app .icon:has(.chatgpt-home-logo)::before,
+.app .icon:has(.chatgpt-home-logo)::after {
+  content: none !important;
+  display: none !important;
+}
+
+.app .icon:has(.chatgpt-home-logo) {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+.chatgpt-home-logo {
+  position: relative;
+  z-index: 10;
+  display: block;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+  .app .icon:has(.chatgpt-home-logo) {
+  background: #ffffff !important;
+  background-image: none !important;
+  overflow: hidden !important;
+}
+
+.app .icon:has(.chatgpt-home-logo)::before,
+.app .icon:has(.chatgpt-home-logo)::after {
+  content: none !important;
+  display: none !important;
+}
+
+.chatgpt-home-logo {
+  position: relative;
+  z-index: 10;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+}
+
+  .app .icon:has(img.chatgpt-home-logo) {
+  background: transparent !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+.app .icon:has(img.chatgpt-home-logo)::before,
+.app .icon:has(img.chatgpt-home-logo)::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+img.chatgpt-home-logo {
+  position: relative;
+  z-index: 999;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  background: #fff !important;
+}
+  /* 모든 앱 아이콘의 기존 디자인 초기화 */
+.apps .app .icon,
+.dock .app .icon {
+  background: #fff !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+
+/* 기존 CSS가 덧그리던 옛날 아이콘 모양 제거 */
+.apps .app .icon::before,
+.apps .app .icon::after,
+.dock .app .icon::before,
+.dock .app .icon::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+/* 앱 아이콘 위에 흰색 배경 덮기 */
+.apps .app .icon {
+  background: #fff !important;
+  background-image: none !important;
+  position: relative !important;
+  isolation: isolate !important;
+}
+
+/* 기존에 그려진 색깔과 모양 덮기 */
+.apps .app .icon::before,
+.apps .app .icon::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  z-index: 99 !important;
+}
+
+/* 앱 아이콘 안의 이모지나 옛날 그림 숨기기 */
+.apps .app .icon {
+  font-size: 0 !important;
+}
+.app .icon:has(.notes-home-logo)::before,
+.app .icon:has(.notes-home-logo)::after {
+  content: none !important;
+  display: none !important;
+}
+
+.app .icon:has(.notes-home-logo) {
+  background: #fff !important;
+  overflow: hidden;
+}
+
+.notes-home-logo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+  .app .icon:has(.notes-home-logo)::before,
+.app .icon:has(.notes-home-logo)::after {
+  content: none !important;
+  display: none !important;
+}
+
+.app .icon:has(.notes-home-logo) {
+  background: #fff !important;
+  overflow: hidden !important;
+}
+
+.notes-home-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+  /* 메모 앱 아이콘을 이미지로 꽉 채우기 */
+.apps .app .icon:has(.notes-home-logo),
+.dock .app .icon:has(.notes-home-logo) {
+  background: #fff !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: none !important;
+}
+
+/* 기존에 덧그려진 아이콘 모양 제거 */
+.app .icon:has(.notes-home-logo)::before,
+.app .icon:has(.notes-home-logo)::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* 이미지가 아이콘 전체를 채우도록 */
+img.notes-home-logo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+  /* 사진 앱의 기존 배경과 장식 제거 */
+.app .icon:has(.photos-home-logo) {
+  background: #fff !important;
+  background-image: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.app .icon:has(.photos-home-logo)::before,
+.app .icon:has(.photos-home-logo)::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* 사진 로고를 아이콘에 꽉 채우기 */
+img.photos-home-logo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+  .app .icon:has(.weather-home-logo)::before,
+.app .icon:has(.weather-home-logo)::after {
+  content: none !important;
+  display: none !important;
+}
+
+.app .icon:has(.weather-home-logo) {
+  background: #ffffff !important;
+  background-image: none !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+img.weather-home-logo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+  .app .icon:has(img.weather-home-logo) {
+  padding: 0 !important;
+  overflow: hidden !important;
+  background-image: none !important;
+}
+
+.app .icon:has(img.weather-home-logo)::before,
+.app .icon:has(img.weather-home-logo)::after {
+  display: none !important;
+  content: none !important;
+}
+
+.app .icon img.weather-home-logo {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+  .app .icon:has(img.full-app-icon) {
+  padding: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+}
+
+.app .icon:has(img.full-app-icon)::before,
+.app .icon:has(img.full-app-icon)::after {
+  display: none !important;
+  content: none !important;
+}
+
+.app .icon img.full-app-icon {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: inherit !important;
+}
+
+  .app .icon:has(img.full-app-icon)::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* 음악·설정·캘린더 아이콘만 수정 */
+.app .icon:has(img.full-app-icon) {
+  position: relative !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  background-image: none !important;
+  isolation: isolate;
+}
+
+.app .icon:has(img.full-app-icon)::before,
+.app .icon:has(img.full-app-icon)::after {
+  content: none !important;
+  display: none !important;
+}
+
+.app .icon img.full-app-icon {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  z-index: 2 !important;
+}
+  /* 홈 화면 이미지 아이콘 전체 채우기 */
+.app .icon:has(img.full-app-icon),
+.app .icon:has(img.photos-home-logo) {
+  position: relative !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+.app .icon:has(img.full-app-icon)::before,
+.app .icon:has(img.full-app-icon)::after,
+.app .icon:has(img.photos-home-logo)::before,
+.app .icon:has(img.photos-home-logo)::after {
+  display: none !important;
+  content: none !important;
+}
+
+.app .icon img.full-app-icon,
+.app .icon img.photos-home-logo {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: fill !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+  /* 아이폰 메시지 앱 아이콘 */
+.messages-logo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #62e65e 0%, #24c840 100%);
+  border-radius: inherit;
+  position: relative;
+}
+
+.messages-logo span {
+  width: 62%;
+  height: 46%;
+  background: white;
+  border-radius: 50%;
+  position: relative;
+}
+
+.messages-logo span::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  bottom: -7%;
+  width: 25%;
+  height: 25%;
+  background: white;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+  .messages-logo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  background: linear-gradient(#65e85e, #20c840);
+}
+
+.messages-bubble {
+  width: 62%;
+  height: 44%;
+  background: white;
+  border-radius: 50%;
+  position: relative;
+}
+
+.messages-bubble::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  bottom: -5px;
+  width: 25%;
+  height: 35%;
+  background: white;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+  /* 차분한 하늘색 아이폰 잠금화면 */
+.ios-lock-screen {
+  background:
+    radial-gradient(circle at 18% 12%, #8fd0ff 0%, transparent 46%),
+    radial-gradient(circle at 88% 28%, #c39bff 0%, transparent 50%),
+    radial-gradient(circle at 24% 82%, #ff9fcb 0%, transparent 50%),
+    radial-gradient(circle at 92% 92%, #6d8bff 0%, transparent 52%),
+    linear-gradient(160deg, #4b7bf2 0%, #7b52dc 100%) !important;
+}
+
+  .grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.photo {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: transparent;
+  cursor: pointer;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* ===== 홈 화면 앱 아이콘: 뒤 배경 제거 (dock 제외) ===== */
+.home .apps .app .icon {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+.home .apps .app .icon::before,
+.home .apps .app .icon::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+.home .apps .app .icon img {
+  background: transparent !important;
+}
+
+/* ===== 전화 수신 / 통화 화면 ===== */
+.call-overlay {
+  position: absolute; inset: 0; z-index: 15;
+  display: flex; flex-direction: column; align-items: center;
+  color: #fff; font-family: inherit;
+  background: linear-gradient(180deg, #5b6470 0%, #2f343c 55%, #1b1e23 100%);
+  animation: callFadeIn .25s ease;
+}
+@keyframes callFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.screen.in-call .statusbar { color: #fff; }
+.screen.in-call .status-icons { filter: invert(1); }
+.call-top { margin-top: 78px; text-align: center; width: 100%; padding: 0 20px; box-sizing: border-box; }
+.call-name { font-size: 32px; font-weight: 500; letter-spacing: -.3px; }
+.call-sub { margin-top: 4px; font-size: 17px; color: rgba(255,255,255,.7); }
+.call-timer { margin-top: 4px; font-size: 18px; color: rgba(255,255,255,.75); font-variant-numeric: tabular-nums; }
+.call-mini-row { position: absolute; left: 0; right: 0; bottom: 205px; display: flex; justify-content: space-between; padding: 0 44px; }
+.call-mini { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 13px; color: #fff; }
+.call-mini i { width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 20px; }
+.call-main-row { position: absolute; left: 0; right: 0; bottom: 70px; display: flex; justify-content: space-between; padding: 0 40px; }
+.call-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; border: 0; background: none; color: #fff; cursor: pointer; font-family: inherit; }
+.call-btn i { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-style: normal; }
+.call-btn.decline i { background: #ff3b30; }
+.call-btn.accept i { background: #34c759; animation: callPulse 1.4s ease-in-out infinite; }
+.call-btn:active i { filter: brightness(.85); }
+.call-btn svg { width: 32px; height: 32px; fill: #fff; }
+.call-btn.decline svg { transform: rotate(135deg); }
+@keyframes callPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(52,199,89,.5); } 50% { box-shadow: 0 0 0 12px rgba(52,199,89,0); } }
+.call-caption-wrap { position: absolute; left: 16px; right: 16px; top: 178px; height: 74px; display: flex; align-items: center; justify-content: center; }
+.call-caption { max-width: 100%; padding: 10px 16px; border-radius: 14px; background: rgba(0,0,0,.55); font-size: 17px; font-weight: 500; line-height: 1.35; text-align: center; opacity: 0; transform: translateY(6px); transition: opacity .25s, transform .25s; word-break: keep-all; }
+.call-caption.show { opacity: 1; transform: none; }
+.call-keys { position: absolute; left: 0; right: 0; bottom: 70px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 0; justify-items: center; padding: 0 22px; box-sizing: border-box; }
+.call-keys .call-mini { font-size: 12px; }
+.call-keys .call-mini i { width: 62px; height: 62px; font-size: 24px; }
+.call-keys .call-mini i.off { background: rgba(255,255,255,.2); }
+.call-end-wrap { position: absolute; left: 0; right: 0; bottom: 56px; display: flex; justify-content: center; }
+.call-end-wrap .call-btn i { width: 66px; height: 66px; }
+.call-keys-lift { bottom: 150px; }
+.call-mini i svg { width: 24px; height: 24px; }
+.call-keys .call-mini i svg { width: 28px; height: 28px; }
+
+  .fake-photo {
+  overflow: hidden;
+  position: relative;
+  background: #e5e5ea;
+  pointer-events: none;
+  cursor: default;
+}
+
+.fake-blur {
+  width: 100%;
+  height: 100%;
+  filter: blur(12px);
+  transform: scale(1.2);
+  opacity: 0.8;
+}
+
+.fake-color-0 { background: linear-gradient(135deg, #526b85, #8298ad, #3e526c); }
+.fake-color-1 { background: linear-gradient(45deg, #536f78, #9aabb4, #465b70); }
+.fake-color-2 { background: linear-gradient(120deg, #657b96, #a2b4c5, #52657e); }
+.fake-color-3 { background: linear-gradient(60deg, #5e6686, #a0a9c0, #536f82); }
+.fake-color-4 { background: linear-gradient(135deg, #647d8b, #a7b9c4, #4d637c); }
+.fake-color-5 { background: linear-gradient(90deg, #526981, #91a9bd, #5d708d); }
+
+/* ===== iPhone 스타일 메시지 목록 ===== */
+.ims { min-height: 100%; box-sizing: border-box; background: #fff; color: #000;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; padding-bottom: 40px; }
+.ims-top { display: flex; align-items: center; justify-content: space-between; padding: 6px 16px 0; height: 40px; }
+.ims-edit { border: none; background: transparent; color: #007aff; font-size: 17px; padding: 6px 0; cursor: pointer; font-family: inherit; }
+.ims-compose { border: none; background: transparent; color: #007aff; padding: 6px 0; cursor: pointer; display: grid; place-items: center; }
+.ims-title { margin: 2px 16px 8px; font-size: 34px; line-height: 1.15; font-weight: 700; letter-spacing: -0.4px; }
+.ims-search { display: flex; align-items: center; justify-content: center; gap: 6px; height: 36px; margin: 0 16px 10px;
+  border-radius: 10px; background: rgba(118,118,128,.12); color: #8e8e93; font-size: 17px; }
+.ims-list { background: #fff; }
+.ims-row { display: flex; align-items: flex-start; padding-left: 16px; cursor: pointer; background: #fff; }
+.ims-row:active { background: #e5e5ea; }
+.ims-avatar { flex: 0 0 48px; width: 48px; height: 48px; margin-top: 10px; border-radius: 50%; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 22px; font-weight: 500;
+  background: linear-gradient(180deg, #a5abb8 0%, #858a98 100%); }
+.ims-body { flex: 1; min-width: 0; margin-left: 12px; padding: 10px 14px 11px 0; border-bottom: 0.5px solid #d1d1d6; }
+.ims-row:last-child .ims-body { border-bottom: none; }
+.ims-line1 { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.ims-name { flex: 1; min-width: 0; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ims-time { flex-shrink: 0; color: #8e8e93; font-size: 15px; }
+.ims-chev { flex-shrink: 0; color: #c4c4c7; margin-left: 2px; }
+.ims-preview { margin-top: 2px; color: #8e8e93; font-size: 15px; line-height: 1.28;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; }
+
+/* ===== ChatGPT 앱 스타일 ===== */
+.gpt-app { padding: 44px 0 0 !important; background: #fff; color: #0d0d0d; position: absolute;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; overflow: hidden; }
+.gpt-topbar { display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 10px; flex-shrink: 0; }
+.gpt-icon-btn { width: 40px; height: 40px; border: none; background: transparent; color: #0d0d0d; display: grid; place-items: center; cursor: pointer; border-radius: 50%; }
+.gpt-icon-btn:active { background: #f1f1f1; }
+.gpt-model { font-size: 17px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.gpt-model-chev { color: #8e8e93; display: grid; place-items: center; }
+
+.gpt-empty { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 24px 40px; }
+.gpt-empty-title { font-size: 24px; font-weight: 500; text-align: center; letter-spacing: -0.3px; }
+
+.gpt-messages { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 16px 12px; }
+.gpt-user { display: flex; justify-content: flex-end; margin: 10px 0 18px; }
+.gpt-user-bubble { max-width: 82%; padding: 10px 16px; border-radius: 22px; background: #f4f4f4; font-size: 15.5px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.gpt-assistant { margin: 0 0 22px; }
+.gpt-assistant-text { font-size: 15.5px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+.gpt-actions { display: flex; gap: 18px; margin-top: 12px; color: #6b6b6b; }
+
+.gpt-composer { flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 8px 12px 30px; background: #fff; }
+.gpt-plus { flex: 0 0 42px; width: 42px; height: 42px; border: none; border-radius: 50%; background: #f4f4f4; color: #0d0d0d; display: grid; place-items: center; }
+.gpt-input-pill { flex: 1; display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 5px 0 16px; border-radius: 21px; background: #f4f4f4; }
+.gpt-placeholder { flex: 1; color: #8e8e93; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gpt-mic { color: #0d0d0d; display: grid; place-items: center; }
+.gpt-voice { width: 34px; height: 34px; border-radius: 50%; background: #0d0d0d; display: grid; place-items: center; }
+
+.gpt-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.32); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 30; }
+.gpt-overlay.open { opacity: 1; pointer-events: auto; }
+.gpt-drawer { position: absolute; top: 0; bottom: 0; left: 0; width: 84%; background: #fff; z-index: 31; display: flex; flex-direction: column;
+  padding: 50px 0 28px; box-sizing: border-box; transform: translateX(-102%); transition: transform .28s ease; box-shadow: 4px 0 24px rgba(0,0,0,.12); }
+.gpt-drawer.open { transform: translateX(0); }
+.gpt-drawer-search { display: flex; align-items: center; gap: 4px; padding: 6px 10px 6px 14px; }
+.gpt-search-pill { flex: 1; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 20px; background: #f4f4f4; color: #8e8e93; font-size: 16px; }
+.gpt-drawer-menu { padding: 8px 8px 4px; }
+.gpt-menu-item { display: flex; align-items: center; gap: 14px; padding: 11px 10px; font-size: 16px; border-radius: 12px; cursor: pointer; }
+.gpt-menu-item:active { background: #f4f4f4; }
+.gpt-drawer-label { padding: 14px 20px 6px; color: #8e8e93; font-size: 13px; font-weight: 500; }
+.gpt-drawer-chats { flex: 1; min-height: 0; overflow-y: auto; padding: 0 8px; }
+.gpt-chat-item { padding: 11px 12px; font-size: 16px; border-radius: 12px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gpt-chat-item.active, .gpt-chat-item:active { background: #f4f4f4; }
+.gpt-profile { display: flex; align-items: center; gap: 12px; padding: 12px 18px 0; border-top: 1px solid #efefef; margin-top: 6px; }
+.gpt-profile-avatar { width: 34px; height: 34px; border-radius: 50%; background: #a05cf0; color: #fff; display: grid; place-items: center; font-size: 15px; font-weight: 600; }
+.gpt-profile-name { flex: 1; font-size: 16px; font-weight: 500; }
+.gpt-profile-more { color: #6b6b6b; display: grid; place-items: center; }
+
+
+/* ===== 홈바 (화면 안, 배경에 따라 흑/백 자동 반전) ===== */
+.homebar {
+  width: 124px; height: 5px; left: calc(50% - 62px); bottom: 8px; transform: none !important;
+  background: #fff; mix-blend-mode: difference; border-radius: 3px;
+  position: absolute; z-index: 60; cursor: pointer;
+}
+.homebar::before { content: ""; position: absolute; left: -16px; right: -16px; top: -12px; bottom: -10px; }
+
+/* ===== 홈 화면 (iOS 월페이퍼 / 독) ===== */
+.screen.on-wallpaper .statusbar { color: #fff; }
+.screen.on-wallpaper .status-icons { filter: invert(1); }
+.home .widget { color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,.22); }
+.home .widget .date { color: rgba(255,255,255,.92); font-size: 14px; font-weight: 600; }
+.home .widget .time { color: #fff; font-weight: 300; }
+.home .app span { color: #fff !important; font-size: 11px; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.home .apps .app .icon, .home .dock .app .icon { border-radius: 22.5% !important; box-shadow: 0 1px 4px rgba(0,0,0,.22); }
+.home .dock { background: rgba(255,255,255,.26); -webkit-backdrop-filter: blur(24px) saturate(1.5); backdrop-filter: blur(24px) saturate(1.5);
+  border: .5px solid rgba(255,255,255,.35); border-radius: 32px; bottom: 28px; }
+.home .pagedots i { background: rgba(255,255,255,.45); }
+.home .pagedots i.on { background: #fff; }
+
+/* ===== iPhone 스타일 대화방 ===== */
+.imc-header { position: relative; flex-shrink: 0; height: 76px; display: flex; justify-content: center; align-items: flex-start;
+  padding: 6px 12px 0; box-sizing: border-box; background: rgba(247,247,247,.94); border-bottom: .5px solid #d1d1d6; }
+.imc-back { position: absolute; left: 10px; top: 14px; color: #007aff; font-size: 17px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+.imc-contact { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.imc-avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 19px; font-weight: 500; background: linear-gradient(180deg, #a5abb8 0%, #858a98 100%); }
+.imc-name { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; color: #000; }
+.imc-input-area { flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 8px 12px 26px; background: #fff; }
+.imc-plus { flex: 0 0 32px; width: 32px; height: 32px; border: none; border-radius: 50%; background: #e9e9eb; color: #6e6e73; display: grid; place-items: center; cursor: pointer; }
+.imc-pill { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 4px 0 14px; border: 1px solid #d1d1d6; border-radius: 17px; background: #fff; }
+.imc-input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 15px; font-family: inherit; }
+.imc-mic { color: #8e8e93; margin-right: 6px; flex-shrink: 0; }
+.imc-send { display: none; width: 26px; height: 26px; border: none; border-radius: 50%; background: #007aff; place-items: center; cursor: pointer; flex-shrink: 0; padding: 0; }
+.imc-pill.has-text .imc-send { display: grid; }
+.imc-pill.has-text .imc-mic { display: none; }
+
+
+/* 홈바와 겹치지 않도록 하단 바 여백 */
+.yt-bottom-nav { padding-bottom: 20px !important; }
+
+/* ===== 장보기 체크리스트 줄 맞춤 ===== */
+.ios-note-detail-body .note-check-item { display: flex !important; align-items: center; gap: 10px; height: 30px; margin: 0 !important; padding: 0 !important; line-height: 30px; font-size: 17px; }
+.ios-note-detail-body .note-check-item .note-checkbox { width: 18px; height: 18px; margin: 0 !important; flex-shrink: 0; }
+.ios-note-detail-body .note-check-item span { line-height: 30px; }
+
+/* ===== ChatGPT 앱 아이콘: 흰 배경 + 검정 로고 ===== */
+.home .app .icon:has(.chatgpt-svg-logo) { background: #fff !important; background-color: #fff !important; background-image: none !important; }
+.home .app .icon:has(.chatgpt-svg-logo)::before, .home .app .icon:has(.chatgpt-svg-logo)::after { content: none !important; display: none !important; }
+.chatgpt-svg-logo { position: relative; z-index: 5; width: 100%; height: 100%; display: grid; place-items: center; }
+.chatgpt-svg-logo svg { width: 70%; height: 70%; display: block; }
+
+/* 잠금화면: 상단 띠 제거 + 월페이퍼 위 홈바는 흰색 */
+.content:has(.ios-lock-screen) { padding-top: 0 !important; }
+.ios-lock-screen { padding-top: 44px; box-sizing: border-box; min-height: 100%; }
+.screen.on-wallpaper .homebar { mix-blend-mode: normal; background: rgba(255,255,255,.92); }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="screen">
+    <div class="notch"></div>
+    <div class="statusbar">
+      <span id="sbTime">9:41</span>
+      <div class="status-icons">
+    <span class="signal">
+      <i></i><i></i><i></i><i></i>
+    </span>
+        <svg class="wifi" viewBox="0 0 24 18" aria-label="Wi-Fi">
+          <path d="M2 5.5 Q12 -2 22 5.5" />
+          <path d="M5.5 9 Q12 3.5 18.5 9" />
+          <path d="M9 12.5 Q12 10 15 12.5" />
+          <circle cx="12" cy="15.2" r="1.2" fill="#000" stroke="none" />
+        </svg>
+        <span class="battery">
+      <span class="battery-level"></span>
+    </span>
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="homebar" id="homeBtn" title="홈으로"></div>
+  </div>
+</div>
+
+<script>
+  const LOCK_PASSCODE = "1031";
+// ===== 가상 데이터 (모두 허구) =====
+const contacts = [
+  { id: 1, name: "진호형🤍", color: "#ff7eb6", letter: "진" },
+  { id: 2, name: "더플라워", color: "#4facfe", letter: "플" },
+  { id: 3, name: "롯데택배", color: "#43e97b", letter: "택" },
+  { id: 4, name: "00777782921031", color: "#fa709a", letter: "" },
+  { id: 5, name: "서울00호텔", color: "#a18cd1", letter: "서" }
+];
+
+const threads = {
+  1: {
+  time: "어제 오전 3:07",
+  msgs: [
+    { s: "me", t: "형 목소리 들으니까 좋다..❤" },
+    { s: "me", t: "아~~ 형 따라서 프라하 갈 걸 그랬나?" },
+    { s: "them", t: "야 넌 대회도 안 나가는데 뭘 따라와 여기가 얼마나 먼데" },
+    { s: "me", t: "그래도요..ㅜㅜ 보고싶어서 그렇죠ㅜㅜ" },
+    { s: "them", t: "대만은 그래서 같이 가기로 했잖아" },
+    { s: "them", t: "또 영상통화 하면 되지" },
+    { s: "them", t: "자주 연락할게" },
+    { s: "me", t: "네! 형 내일 일찍 일어나야되는데 빨리 쉬세요!" },
+    { s: "stamp", t: "어제 오전 10:00" },
+    { s: "them", t: "출구야 좋은아침 밥 맛있게 먹고\n참고로 이거 예약 문자다\n 잘 가려나 모르겠네" },
+    { s: "me", t: "혀엉 이거 뭐예요?..ㅜㅜ" },
+    { s: "me", t: "저 진짜 감동받았어요.." },
+    { s: "me", t: "일부러 신경써서 보내주신거죠?ㅜㅜ" },
+    { s: "me", t: "예약 문자는 생각도 못했는데.. 이러니까 같이 한국에 있는 것 같구 좋다ㅎㅎ" },
+    { s: "stamp", t: "어제 오후 1:13" },
+    { s: "them", t: "어 잘 갔네" },
+    { s: "me", t: "형❤ 일어나셨어요?" },
+    { s: "me", t: "마지막날 화이팅이에요❤❤" },
+    { s: "them", t: "엉~" },
+    { s: "them", t: "잘해야 될텐데" },
+    { s: "me", t: "형 무조건이죠! 너무 긴장하지 마세요" },
+    { s: "me", t: "전 형 믿어요ㅎㅎ" },
+    { s: "them", t: "ㅋㅋㅋ" },
+    { s: "them", t: "고맙당" },
+    { s: "stamp", t: "오전 2:39" },
+    { s: "them", t: "끝남" },
+    { s: "them", t: "2등 했어" },
+    { s: "them", t: "마지막에 좀 아쉽네" },
+    { s: "me", t: "형!!!" },
+    { s: "me", t: "와 미쳤다 2등 축하해요!!" },
+    { s: "me", t: "내가 뭐랬어요!!!! 잘한다고 했지!!!" },
+    { s: "them", t: "그러냐ㅋㅋ" },
+    { s: "me", t: "영상통화 돼요?" },
+    { s: "stamp", t: "오전 3:22" },
+    { s: "me", t: "형 고생했어요" },
+    { s: "me", t: "이제 푹 쉬세요" },
+    { s: "them", t: "출구 너도 얼른 자" },
+    { s: "me", t: "네 사랑해요❤" },
+
+    { s: "stamp", t: "오후 5:42" },
+    { s: "them", t: "지금 밥 먹으러 식당 옴" },
+    { s: "them", t: "에스프레소 처음 먹어봤는데 개쓰다 진짜--" },
+    { s: "them", t: "밥 다 먹고 좀 구경하다가 공항 가려구" },
+    { s: "stamp", t: "오후 7:11" },
+    { s: "me", t: "7시 비행기죠?" },
+    { s: "them", t: "엉" },
+    { s: "them", t: "이제 내일이면 출구 보겠네~" }
+  ]
+},
+
+
+  2: { time: "어제 오전 10:30", msgs: [
+    { s: "them", t: "안녕하세요. '더플라워'입니다😊 \n내일 오후 12시 꽃다발 픽업 확인차 문자 드립니다. \n문의사항 있으시면 언제든 연락부탁드립니다. 감사합니다❤" },
+    { s: "me", t: "넵 내일 뵙겠습니다! 감사합니다!" }
+  ]},
+  3: { time: "10월 15일", msgs: [
+    { s: "them", t: "딩동♬ \n서출구고객님!\n진심을 다하는 롯데택배입니다.\n고객님의 상품이 배송 완료되었습니다.\n■ 인수자(위탁장소) : 문앞\n항상 롯데택배를 이용해 주셔서 감사합니다. " }
+  ]},
+  4: { time: "10월 11일", msgs: [
+    { s: "them", t: "오랜만이에요.\n같이 콩출 하기로 했다. 연락이 안돼요. 제 것을 추가해 주세요 \nLINE:jhxit82" }
+  ]},
+  5: { time: "10월 2일", msgs: [
+    { s: "them", t: "[web발신]\n서울00호텔을 예약해 주셔서 감사합니다. \n투숙객명 : 서해랑\n예약번호 : 122179\n투숙일자 : 2026-10-31(토)~2026-11-01(일) 1박" }
+  ]}
+};
+
+const notes = [
+  { t: "제목없음", d: "오늘", body: "12시 꽃다발 픽업\n2시 공항" },
+  {
+    t: "장보기",
+    d: "10월 19일",
+    body: `<label class="note-check-item"><input type="checkbox" class="note-checkbox"><span>닭가슴살</span></label><label class="note-check-item"><input type="checkbox" class="note-checkbox"><span>브로콜리</span></label><label class="note-check-item"><input type="checkbox" class="note-checkbox"><span>파프리카</span></label><label class="note-check-item"><input type="checkbox" class="note-checkbox"><span>양파</span></label><label class="note-check-item"><input type="checkbox" class="note-checkbox"><span>고구마</span></label>`
+  },
+  { t: "제목없음", d: "9월 30일", body: "호텔 예약하기" },
+  { t: "가사", d: "9월 20일", body: "머리로는 안돼\n내가 여기 있을 때는\n가끔 난 외로운데\nBut I don't want no friends" },
+  { t: "구글 비밀번호", d: "9월 14일", body: "jhxit79@!" }
+];
+
+
+const photos = [
+  "jximages/photo6.jpg",
+  "jximages/photo5.jpg",
+  "jximages/photo4.jpg",
+  "jximages/photo3.jpg",
+  "jximages/photo2.jpg",
+  "jximages/photo1.jpg"
+];
+
+const musicSongs = [
+  { title: "Extreme Ways", artist: "Moby", color: "#55517f", coverUrl: "https://image.bugsm.co.kr/album/images/1200/200473/20047317.jpg" },
+  { title: "Golden", artist: "HUNTR/X", color: "#e9a66f", coverUrl: "https://i.namu.wiki/i/GrKRmnD7SqN87dusJj51EKgCRgTfPE0VNButQ4MSo42Jxav1kteFBR89G43jq5J1jiJFxlMCfM3O-BMdgPh95A.webp" },
+  { title: "빗속에서", artist: "이문세", color: "#508eaf", coverUrl: "https://i.namu.wiki/i/0kiDgfusxlKTGXbS2g5r61m03cnrCWgA1VS4x0rs5uNii7SQ9cAzovagGmFNGKHjpRv4Ks55FBbGfdT3oBqd6w.webp" },
+  { title: "비처럼 음악처럼", artist: "김현식", color: "#7d6aab", coverUrl: "https://image.bugsm.co.kr/album/images/1200/349/34932.jpg" },
+  { title: "세월이 가면(feat.최명섭)", artist: "최호섭", color: "#c9879d", coverUrl: "https://i.namu.wiki/i/m-IkIYSZpk1dyVF-fFqXBnBT2cuvGzygG7VBlgp4z8u-72WmMFMfNjsZ5lMGdNP34E4dMrMKwCpGjJUHtD44-g.webp" },
+  { title: "그녀의 웃음소리뿐", artist: "이문세", color: "#829fc9", coverUrl: "https://image.bugsm.co.kr/album/images/1200/1355/135544.jpg" },
+];
+
+let currentMusicIndex = 0;
+let musicIsPlaying = false;
+let musicTab = "홈 화면";
+
+
+function renderMusicApp() {
+  content.innerHTML = `
+  loadMusicCovers();
+    <div class="music-app">
+
+      <!-- 스크롤되는 영역: 홈 버튼, 소개, 플레이리스트 -->
+      <div class="music-scroll-area">
+
+        <div class="music-topbar">
+          <button onclick="home()" style="
+            border: none;
+            background: transparent;
+            color: #fa3155;
+            font-size: 16px;
+            padding: 0 0 12px;
+          ">
+            ‹ 홈
+          </button>
+        </div>
+
+        <div class="music-welcome">
+          <div class="music-welcome-label">나만을 위한 음악</div>
+          <h2>오늘은 어떤<br>음악을 들을까요?</h2>
+          <p>기분에 맞는 음악을 찾아보세요.</p>
+        </div>
+
+        <h3 class="music-section-title">내 플레이리스트</h3>
+
+        <div class="music-song-list">
+          ${musicSongs.map((song, i) => `
+            <div class="music-song" onclick="playMusic(${i})">
+              <div class="music-cover" data-song-index="${i}"
+                   style="background:${song.color}">
+                ${song.coverUrl
+                  ? `<img src="${song.coverUrl}" alt="${song.title} 앨범 커버">`
+                  : song.cover}
+              </div>
+
+              <div class="music-song-info">
+                <div class="music-song-title">${song.title}</div>
+                <div class="music-song-artist">${song.artist}</div>
+              </div>
+
+              <button class="music-more"
+                onclick="event.stopPropagation(); playMusic(${i})">
+                ${currentMusicIndex === i && musicIsPlaying ? "♫" : "•••"}
+              </button>
+            </div>
+          `).join("")}
+        </div>
+
+      </div>
+
+      <!-- 고정 미니 플레이어 -->
+      <div class="music-player-bar" onclick="toggleMusicPlayback()">
+        <div class="music-mini-cover"
+          style="background:${musicSongs[currentMusicIndex].color}">
+          ${musicSongs[currentMusicIndex].coverUrl
+            ? `<img src="${musicSongs[currentMusicIndex].coverUrl}" alt="앨범 커버">`
+            : musicSongs[currentMusicIndex].cover}
+        </div>
+
+        <div class="music-player-info">
+          <div class="music-song-title">
+            ${musicSongs[currentMusicIndex].title}
+          </div>
+          <div class="music-song-artist">
+            ${musicSongs[currentMusicIndex].artist}
+          </div>
+        </div>
+
+        <span class="music-play-icon">
+          ${musicIsPlaying ? "Ⅱ" : "▶"}
+        </span>
+      </div>
+
+      <!-- 하단 탭 -->
+      <div class="music-tabbar">
+  <button type="button" class="active">
+    <span>⌂</span>홈
+  </button>
+
+  <button type="button">
+    <span>♫</span>새로운 음악
+  </button>
+
+  <button type="button">
+    <span>⌕</span>둘러보기
+  </button>
+
+  <button type="button">
+    <span>▤</span>보관함
+  </button>
+</div>
+
+    </div>
+  `;
+}
+
+async function loadMusicCovers() {
+  await Promise.all(musicSongs.map(async (song, i) => {
+    try {
+      const query = encodeURIComponent(
+        `${song.title} ${song.artist}`
+      );
+
+      const response = await fetch(
+        `https://itunes.apple.com/search?term=${query}&entity=song&limit=10&country=kr`
+      );
+
+      const data = await response.json();
+
+      if (!data.results || !data.results.length) return;
+
+      const title = song.title
+        .toLowerCase()
+        .replace(/\s+/g, "");
+
+      const artist = song.artist
+        .toLowerCase()
+        .replace(/\s+/g, "");
+
+      const match = data.results.find(track =>
+        track.trackName.toLowerCase().replace(/\s+/g, "")
+          .includes(title) &&
+        track.artistName.toLowerCase().includes(artist)
+      ) || data.results[0];
+
+      song.coverUrl = match.artworkUrl100
+        .replace(/\d+x\d+bb/, "600x600bb");
+
+      const cover = document.querySelector(
+        `.music-cover[data-song-index="${i}"]`
+      );
+
+      if (cover) {
+        cover.innerHTML =
+          `<img src="${song.coverUrl}" alt="앨범 커버">`;
+      }
+
+      if (i === currentMusicIndex) {
+        const mini = document.querySelector(".music-mini-cover");
+
+        if (mini) {
+          mini.innerHTML =
+            `<img src="${song.coverUrl}" alt="앨범 커버">`;
+        }
+      }
+    } catch (error) {
+      console.log("앨범 커버를 불러오지 못했습니다:", song.title);
+    }
+  }));
+}
+
+function openSettings() {
+  content.innerHTML = `
+    <div class="settings-app">
+      <div class="settings-header">
+        <button onclick="home()">‹ 홈</button>
+        <h2>설정</h2>
+      </div>
+
+      <div class="settings-search">
+        <span class="settings-search-icon">⌕</span>
+        <span>설정 검색</span>
+      </div>
+
+      <div class="settings-profile">
+        <div class="contact-avatar">
+          <svg viewBox="0 0 40 40" aria-hidden="true">
+            <circle cx="20" cy="13" r="7" fill="currentColor"/>
+            <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+              fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="settings-profile-info">
+          <strong>서해랑의 iPhone</strong>
+          <p>Apple 계정, iCloud 등</p>
+        </div>
+        <span class="settings-chevron">›</span>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-row">
+          <span class="settings-icon orange">✈</span>
+          <span class="settings-label">에어플레인 모드</span>
+          <span class="settings-status">끔</span>
+          <span class="settings-switch"></span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon blue">◉</span>
+          <span class="settings-label">Wi-Fi</span>
+          <span class="settings-detail">내 Wi-Fi</span>
+          <span class="settings-chevron">›</span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon blue">ᛒ</span>
+          <span class="settings-label">Bluetooth</span>
+          <span class="settings-detail">켬</span>
+          <span class="settings-chevron">›</span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon green">▥</span>
+          <span class="settings-label">셀룰러</span>
+          <span class="settings-chevron">›</span>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-row">
+          <span class="settings-icon green">▰</span>
+          <span class="settings-label">배터리</span>
+          <span class="settings-chevron">›</span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon red">♧</span>
+          <span class="settings-label">알림</span>
+          <span class="settings-chevron">›</span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon blue">◒</span>
+          <span class="settings-label">사운드 및 햅틱</span>
+          <span class="settings-chevron">›</span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon blue">◐</span>
+          <span class="settings-label">집중 모드</span>
+          <span class="settings-chevron">›</span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon blue">◑</span>
+          <span class="settings-label">디스플레이 및 밝기</span>
+          <span class="settings-chevron">›</span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon multicolor">▧</span>
+          <span class="settings-label">배경화면</span>
+          <span class="settings-chevron">›</span>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-row">
+          <span class="settings-icon gray">⚙</span>
+          <span class="settings-label">일반</span>
+          <span class="settings-chevron">›</span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon gray">⌨</span>
+          <span class="settings-label">키보드</span>
+          <span class="settings-chevron">›</span>
+        </div>
+
+        <div class="settings-row">
+          <span class="settings-icon blue">♿</span>
+          <span class="settings-label">손쉬운 사용</span>
+          <span class="settings-chevron">›</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function playMusic(index) {
+  currentMusicIndex = index;
+  musicIsPlaying = true;
+  updateMusicPlayer();
+}
+
+function updateMusicPlayer() {
+  const song = musicSongs[currentMusicIndex];
+
+  const miniCover = document.querySelector(".music-mini-cover");
+  const playerBar = document.querySelector(".music-player-bar");
+  const playerInfo = document.querySelector(".music-player-info");
+  const playIcon = document.querySelector(".music-play-icon");
+
+  if (!song || !miniCover || !playerBar || !playerInfo || !playIcon) return;
+
+  miniCover.style.background = song.color;
+
+  if (song.coverUrl) {
+    miniCover.innerHTML = `
+      <img src="${song.coverUrl}" alt="${song.title} 앨범 커버">
+    `;
+  } else {
+    miniCover.textContent = song.cover;
+  }
+
+  playerInfo.innerHTML = `
+    <div class="music-song-title">${song.title}</div>
+    <div class="music-song-artist">${song.artist}</div>
+  `;
+
+  playIcon.textContent = musicIsPlaying ? "Ⅱ" : "▶";
+
+  document.querySelectorAll(".music-song").forEach((item, i) => {
+    const moreButton = item.querySelector(".music-more");
+
+    if (moreButton) {
+      moreButton.textContent =
+        currentMusicIndex === i && musicIsPlaying ? "♫" : "•••";
+    }
+  });
+}
+
+function toggleMusicPlayback() {
+  musicIsPlaying = !musicIsPlaying;
+  updateMusicPlayer();
+}
+
+function changeMusicTab(tab) {
+  musicTab = tab;
+  renderMusicApp();
+
+  if (tab !== "홈") {
+    const welcome = content.querySelector(".music-welcome");
+    const title = content.querySelector(".music-section-title");
+
+    if (welcome) {
+      welcome.querySelector("h2").textContent =
+        tab === "새로운 음악" ? "새로운 음악을 만나보세요"
+        : tab === "둘러보기" ? "취향에 맞는 음악 찾기"
+        : "나의 음악 보관함";
+    }
+
+    if (title) {
+      title.textContent =
+        tab === "새로운 음악" ? "새롭게 추천하는 음악"
+        : tab === "둘러보기" ? "지금 추천하는 노래"
+        : "전체 노래";
+    }
+  }
+}
+
+// ===== 앱 렌더링 =====
+const content = document.getElementById("content");
+const sbTime = document.getElementById("sbTime");
+
+const phoneScreen = document.querySelector(".screen");
+
+const WALLPAPER = `
+  radial-gradient(circle at 18% 12%, #8fd0ff 0%, transparent 46%),
+  radial-gradient(circle at 88% 28%, #c39bff 0%, transparent 50%),
+  radial-gradient(circle at 24% 82%, #ff9fcb 0%, transparent 50%),
+  radial-gradient(circle at 92% 92%, #6d8bff 0%, transparent 52%),
+  linear-gradient(160deg, #4b7bf2 0%, #7b52dc 100%)
+`;
+
+function setAppBackground(background) {
+  phoneScreen.style.background = background;
+  phoneScreen.classList.remove("on-wallpaper");
+}
+
+function setTime() {
+  const d = new Date();
+  sbTime.textContent = d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0");
+
+  // 홈 화면 위젯 시계/날짜도 같이 갱신
+  const ht = document.getElementById("homeTime");
+  if (ht) ht.textContent = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  const hd = document.getElementById("homeDate");
+  if (hd) hd.textContent = (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + ["일","월","화","수","목","금","토"][d.getDay()] + "요일";
+}
+setTime(); setInterval(setTime, 1000);
+
+function home() {
+  setAppBackground(WALLPAPER);
+  phoneScreen.classList.add("on-wallpaper");
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, "0");
+  const mm = String(now.getMinutes()).padStart(2, "0");
+  const app = (fn, bg, emoji, name) => `
+  <div class="app" onclick="${fn}">
+    <div class="icon" style="background:${bg}">
+      ${emoji.startsWith('<') ? emoji : emoji}
+    </div>
+    <span>${name}</span>
+  </div>
+`;
+  content.innerHTML = `
+    <div class="home">
+      <div class="widget">
+        <div class="date" id="homeDate">${now.getMonth()+1}월 ${now.getDate()}일 ${["일","월","화","수","목","금","토"][now.getDay()]}요일</div>
+        <div class="time" id="homeTime">${hh}:${mm}</div>
+      </div>
+      <div class="apps">
+        ${app(
+  "notesApp()",
+  "#ffffff",
+  '<img class="notes-home-logo" src="./jximages/notes.png" alt="메모">',
+  "메모"
+)}
+        ${app(
+  "gallery()",
+  "#ffffff",
+  '<img class="photos-home-logo" src="./jximages/photos.png" alt="사진">',
+  "사진"
+)}
+        ${app(
+  "weatherApp()",
+  "#ffffff",
+  '<img class="weather-home-logo" src="./jximages/weather.png" alt="날씨">',
+  "날씨"
+)}
+        ${app("renderMusicApp()", "#ff2d55", '<img class="full-app-icon" src="./jximages/music.png" alt="음악">', "음악")}
+${app("openSettings()", "#1fb2c7", '<img class="full-app-icon" src="./jximages/settings.png" alt="설정">', "설정")}
+${app("openYouTube()", "#1c1c1e", '<img class="weather-home-logo" src="./jximages/youtube.png" alt="YouTube">', "Youtube")}
+${app("calendarApp()", "#fff", '<img class="full-app-icon" src="./jximages/calendar.png" alt="캘린더">', "캘린더")}
+
+      </div>
+      <div class="pagedots"><i class="on"></i><i></i></div>
+      <div class="dock">
+        ${app("openPhone()","#28c840",'<div class="phone-real-icon"><svg viewBox="0 0 24 24" width="40" height="40" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1C10.61 21 3 13.39 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.24.2 2.45.57 3.57a1 1 0 01-.25 1.02z"/></svg></div>',"전화")}
+        ${app(
+  "openBrowser()",
+  "#ffffff",
+  '<img class="chrome-logo-img" src="https://www.google.com/chrome/static/images/chrome-logo.svg" alt="Chrome" />',
+  "구글"
+)}
+        ${app("messages()", "#34C759", '<div class="messages-logo"><div class="messages-bubble"></div></div>', "메시지")}
+        ${app("openChatGPT()", "#ffffff", '<div class="chatgpt-svg-logo"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#0d0d0d" stroke-width="3.6" stroke-linecap="round"><g transform="translate(50 50)"><rect x="12.5" y="-40" width="17" height="44" rx="8.5" transform="rotate(0)"/><rect x="12.5" y="-40" width="17" height="44" rx="8.5" transform="rotate(60)"/><rect x="12.5" y="-40" width="17" height="44" rx="8.5" transform="rotate(120)"/><rect x="12.5" y="-40" width="17" height="44" rx="8.5" transform="rotate(180)"/><rect x="12.5" y="-40" width="17" height="44" rx="8.5" transform="rotate(240)"/><rect x="12.5" y="-40" width="17" height="44" rx="8.5" transform="rotate(300)"/></g></svg></div>', "ChatGPT")}
+      </div>
+    </div>`;
+}
+
+let enteredPasscode = "";
+let showPasscodePad = false;
+
+let isLocked = false;
+
+function lockScreen() {
+  isLocked = true;
+  setAppBackground(WALLPAPER);
+  phoneScreen.classList.add("on-wallpaper");
+
+  enteredPasscode = "";
+  showPasscodePad = false;
+  renderLockScreen();
+}
+
+function renderLockScreen() {
+  content.innerHTML = `
+    <div class="ios-lock-screen ${showPasscodePad ? "passcode-open" : ""}"
+         onclick="openPasscodePad(event)">
+
+      <div class="ios-lock-date"></div>
+      <div class="ios-lock-clock"></div>
+
+      ${
+        showPasscodePad
+          ? `
+        <div class="passcode-title">암호 입력</div>
+
+        <div class="passcode-dots">
+          ${[0, 1, 2, 3].map(i =>
+            `<span class="passcode-dot ${
+              i < enteredPasscode.length ? "filled" : ""
+            }"></span>`
+          ).join("")}
+        </div>
+
+        <div class="number-pad">
+          ${[1,2,3,4,5,6,7,8,9].map(n => `
+            <button class="number-key"
+              onclick="pressPasscode('${n}', event)">
+              ${n}
+            </button>
+          `).join("")}
+
+          <button class="delete-key"
+            onclick="deletePasscode(event)">삭제</button>
+
+          <button class="number-key"
+            onclick="pressPasscode('0', event)">0</button>
+
+          <button class="passcode-confirm"
+            onclick="confirmPasscode(event)"
+            ${enteredPasscode.length !== 4 ? "disabled" : ""}>
+            확인
+          </button>
+        </div>
+
+        <div class="passcode-error" id="lockError"></div>
+      `
+          : `
+        <div class="lock-tap-hint">화면을 터치하여 잠금 해제</div>
+      `
+      }
+
+      <div class="ios-lock-bottom">
+        <div class="lock-bottom-icon">⌁</div>
+        <div class="lock-bottom-icon">◉</div>
+      </div>
+    </div>
+  `;
+
+  updateLockClock();
+
+  if (lockClockInterval === null) {
+    lockClockInterval = setInterval(updateLockClock, 1000);
+  }
+}
+
+function updateLockClock() {
+  const now = new Date();
+
+  const dateElement = content.querySelector(".ios-lock-date");
+  const clockElement = content.querySelector(".ios-lock-clock");
+
+  if (dateElement) {
+    dateElement.textContent = new Intl.DateTimeFormat("ko-KR", {
+      month: "long",
+      day: "numeric",
+      weekday: "long"
+    }).format(now);
+  }
+
+  if (clockElement) {
+    clockElement.textContent = new Intl.DateTimeFormat("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }).format(now);
+  }
+}
+
+let lockClockInterval = null;
+
+function openPasscodePad(event) {
+  if (event.target.closest("button")) return;
+  if (!showPasscodePad) {
+    showPasscodePad = true;
+    renderLockScreen();
+  }
+}
+
+function pressPasscode(number, event) {
+  event.stopPropagation();
+
+  if (enteredPasscode.length >= 4) return;
+
+  enteredPasscode += number;
+  renderLockScreen();
+}
+
+function deletePasscode() {
+  enteredPasscode = enteredPasscode.slice(0, -1);
+  renderLockScreen();
+}
+
+function confirmPasscode(event) {
+  event.stopPropagation();
+
+  if (enteredPasscode.length !== 4) return;
+
+  if (enteredPasscode === LOCK_PASSCODE) {
+    isLocked = false;
+    home();
+    return;
+  }
+
+  // 틀린 암호라면 오류 메시지를 표시하고 화면 흔들기
+  enteredPasscode = "";
+  renderLockScreen();
+
+  const screen = content.querySelector(".ios-lock-screen");
+  const error = content.querySelector("#lockError");
+
+  if (error) {
+    error.textContent = "암호가 올바르지 않습니다.";
+  }
+
+  if (screen) {
+    screen.classList.remove("passcode-shake");
+
+    // 브라우저가 애니메이션을 다시 시작하도록 강제
+    void screen.offsetWidth;
+
+    screen.classList.add("passcode-shake");
+  }
+}
+
+function alertApp() {
+  content.insertAdjacentHTML("beforeend", "");
+  const h = document.createElement("div");
+  h.className = "hint";
+  h.textContent = "이 앱은 아직 구현되지 않았어요";
+  content.appendChild(h);
+  setTimeout(() => h.remove(), 1200);
+}
+
+const youtubeVideos = [
+  {
+    title: "일본에서 출구를 찾았습니다",
+    channel: "홍진호TV",
+    views: "조회수 6.7만회 · 3개월 전",
+    emoji: "",
+    color: "linear-gradient(135deg, #ff8a80, #7c4dff)",
+    duration: "11:43",
+    description: "안녕하세요 홍진호입니다 :) \n지난 5월 1일부터 4일까지, 짧은 일정으로 일본 다녀왔습니다. "
+  },
+  {
+    title: "심해 오징어의 10가지 비밀",
+    channel: "지식연구소",
+    views: "조회수 48만회 · 7년 전",
+    emoji: "",
+    color: "linear-gradient(135deg, #ffca28, #ff7043)",
+    duration: "12:45",
+    description: "오늘은 관장님과 ‘심해 오징어’에 대한 이야기를 나누어 보았습니다. "
+  },
+  {
+    title: "만리장성의 숨겨진 비밀들",
+    channel: "지식연구소",
+    views: "조회수 8.2만회 · 5년 전",
+    emoji: "",
+    color: "linear-gradient(135deg, #81c784, #00897b)",
+    duration: "18:26",
+    description: "오늘은 교수님과 ‘만리장성’에 대한 이야기를 나누어 보았습니다. "
+  },
+  {
+    title: "플레이어 공개 | 데블스 플랜 시즌3 | 넷플릭스",
+    channel: "Netflix Korea 넷플릭스 코리아",
+    views: "조회수 74만회 · 12일 전",
+    emoji: "",
+    color: "linear-gradient(135deg, #448aff, #651fff)",
+    duration: "3:04",
+    description: "역대 우승자부터 서바이벌 최강자까지, \n두뇌 서바이벌 역대급 라인업 16인 공개 \n《데블스 플랜》 시즌3, 오직 넷플릭스에서."
+  },
+  {
+    title: "데블스 플랜: 데드 어게인 | 공식 티저 예고편 | 넷플릭스",
+    channel: "Netflix Korea 넷플릭스 코리아",
+    views: "조회수 75만회 · 7일 전",
+    emoji: "",
+    color: "linear-gradient(135deg, #90caf9, #3949ab)",
+    duration: "1:01",
+    description: "역대 우승자부터 새로운 승부사까지, 두뇌 서바이벌 최강의 라인업 \n다시 돌아온 자들의 진짜 승부 《데블스 플랜: 데드 어게인》, 11월 10일 공개. 오직 넷플릭스에서."
+  }
+];
+
+function openYouTube() {
+  renderYouTubeHome();
+}
+
+function renderYouTubeHome() {
+  const videosHTML = youtubeVideos.map((video, index) => `
+    <div class="yt-video" onclick="openYouTubeVideo(${index})">
+      <div class="yt-thumbnail"
+        style="background:${video.color}">
+        <span class="yt-thumbnail-emoji">${video.emoji}</span>
+        <span class="yt-duration">${video.duration}</span>
+      </div>
+
+      <div class="yt-video-info">
+        <div class="yt-channel-avatar">${video.channel.charAt(0)}</div>
+        <div class="yt-video-text">
+          <div class="yt-video-title">${video.title}</div>
+          <div class="yt-video-meta">
+            ${video.channel} · ${video.views}
+          </div>
+        </div>
+        <span class="yt-more">⋮</span>
+      </div>
+    </div>
+  `).join("");
+
+  content.innerHTML = `
+    <div class="phone-app youtube-app">
+      <div class="yt-topbar">
+        <button class="yt-home-button" onclick="home()">‹ 홈</button>
+        <div class="yt-brand">
+          <span class="yt-logo">▶</span>
+          <strong>YouTube</strong>
+        </div>
+        <button class="yt-search-button" disabled>⌕</button>
+      </div>
+
+      <div class="yt-categories">
+        <span class="yt-category active">전체</span>
+        <span class="yt-category">음악</span>
+        <span class="yt-category">게임</span>
+        <span class="yt-category">믹스</span>
+        <span class="yt-category">브이로그</span>
+      </div>
+
+      <div class="yt-feed">
+        ${videosHTML}
+      </div>
+
+      <div class="yt-bottom-nav">
+        <div class="yt-nav-item active">
+          <span>⌂</span>
+          <small>홈</small>
+        </div>
+        <div class="yt-nav-item">
+          <span>▶</span>
+          <small>Shorts</small>
+        </div>
+        <div class="yt-nav-item yt-plus">＋</div>
+        <div class="yt-nav-item">
+          <span>▣</span>
+          <small>구독</small>
+        </div>
+        <div class="yt-nav-item">
+          <span>◉</span>
+          <small>내 페이지</small>
+        </div>
+      </div>
+    </div>
+  `;
+
+  content.scrollTop = 0;
+}
+
+function openYouTubeVideo(index) {
+  const video = youtubeVideos[index];
+  if (!video) return;
+
+  content.innerHTML = `
+    <div class="phone-app youtube-app">
+      <div class="yt-video-topbar">
+        <button onclick="renderYouTubeHome()">‹ YouTube</button>
+        <strong>동영상</strong>
+      </div>
+
+      <div class="yt-player" style="background:${video.color}">
+        <span>${video.emoji}</span>
+        <div class="yt-player-play">▶</div>
+      </div>
+
+      <div class="yt-detail">
+        <h2>${video.title}</h2>
+        <p class="yt-detail-meta">${video.views}</p>
+
+        <div class="yt-detail-channel">
+          <div class="yt-channel-avatar">
+            ${video.channel.charAt(0)}
+          </div>
+
+          <div class="yt-channel-info">
+            <strong>${video.channel}</strong>
+          </div>
+
+          <button class="yt-subscribed" disabled>구독중</button>
+        </div>
+
+        <div class="yt-detail-actions">
+          <button>♡ 좋아요</button>
+          <button>↗ 공유</button>
+          <button>↓ 저장</button>
+        </div>
+
+        <div class="yt-description">
+          ${video.description.replace(/\n/g, "<br>")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  content.scrollTop = 0;
+}
+
+function weatherApp() {
+  setAppBackground("linear-gradient(180deg, #294f9b 0%, #477fc4 34%, #80b5e6 68%, #c2dff5 100%)");
+  const hourly = [
+    { time: "지금", icon: "🌤️", temp: "18°" },
+    { time: "오후 10시", icon: "🌙", temp: "18°" },
+    { time: "오후 11시", icon: "🌙", temp: "17°" },
+    { time: "오전 12시", icon: "🌙", temp: "16°" },
+    { time: "오전 1시", icon: "☁️", temp: "16°" }
+  ];
+
+  const days = [
+    { day: "오늘", icon: "🌦️", low: "11°", high: "21°" },
+    { day: "월", icon: "🌧️", low: "12°", high: "19°" },
+    { day: "화", icon: "🌤️", low: "10°", high: "20°" },
+    { day: "수", icon: "☀️", low: "11°", high: "22°" },
+    { day: "목", icon: "🌤️", low: "13°", high: "21°" },
+    { day: "금", icon: "🌧️", low: "12°", high: "18°" },
+    { day: "토", icon: "☁️", low: "10°", high: "17°" },
+    { day: "일", icon: "☀️", low: "9°", high: "19°" },
+    { day: "월", icon: "🌤️", low: "11°", high: "20°" },
+    { day: "화", icon: "☀️", low: "12°", high: "23°" }
+  ];
+
+  content.innerHTML = `
+    <div class="weather-screen">
+      <div class="weather-nav">
+        <button onclick="home()" aria-label="홈으로">‹</button>
+        <span class="weather-nav-label">날씨</span>
+        <button onclick="weatherApp()" aria-label="새로고침">↻</button>
+      </div>
+
+      <div class="weather-main-city">서울</div>
+      <div class="weather-main-desc">구름 조금</div>
+      <div class="weather-main-temp">18°</div>
+      <div class="weather-high-low">최고: 21°  최저: 11°</div>
+      <div class="weather-art">🌤️</div>
+
+      <div class="weather-panel">
+        <div class="weather-panel-title">시간별 예보</div>
+        <div class="weather-hourly">
+          ${hourly.map(h => `
+            <div class="weather-hour">
+              <div class="hour-time">${h.time}</div>
+              <div class="hour-icon">${h.icon}</div>
+              <div class="hour-temp">${h.temp}</div>
+            </div>
+          `).join("")}
+        </div>
+        <div class="weather-summary">
+          오늘은 구름이 조금 끼는 날씨예요.
+          기온은 11°에서 21° 사이로 예상돼요.
+        </div>
+      </div>
+
+      <div class="weather-panel">
+        <div class="weather-panel-title">10일간의 일기예보</div>
+        ${days.map(d => `
+          <div class="weather-day">
+            <div class="weather-day-name">${d.day}</div>
+            <div class="weather-day-icon">${d.icon}</div>
+            <div class="weather-day-low">${d.low}</div>
+            <div class="weather-range"></div>
+            <div class="weather-day-high">${d.high}</div>
+          </div>
+        `).join("")}
+      </div>
+
+      <div class="weather-footer">
+        <div class="weather-footer-item active">
+          <span class="footer-icon">☀</span>
+          <span>날씨</span>
+        </div>
+        <div class="weather-footer-item">
+          <span class="footer-icon">🗺</span>
+          <span>지도</span>
+        </div>
+        <div class="weather-footer-item">
+          <span class="footer-icon">☷</span>
+          <span>도시 목록</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  content.scrollTop = 0;
+}
+
+function header(title, leftBack = true, backFn = home) {
+  return `<div class="header">
+    ${leftBack ? `<span class="back" onclick="(${backFn.name})()">‹ 뒤로</span>` : ""}
+    <span class="title ${leftBack ? "" : "left"}">${title}</span>
+  </div>`;
+}
+
+function openPhone() {
+  content.innerHTML = `
+    <div class="phone-app">
+
+      <div class="phone-back">
+        <button onclick="home()">‹ 홈</button>
+      </div>
+
+      <div class="phone-header">
+        <h1>최근 통화</h1>
+      </div>
+
+      <div class="contacts-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10.8" cy="10.8" r="6.8"/>
+          <path d="M16 16l5 5"/>
+        </svg>
+        <span>검색</span>
+      </div>
+
+      <div class="phone-filter">
+        <button class="selected">전체</button>
+        <button>부재중</button>
+      </div>
+
+      <div class="phone-scroll-area">
+        <div class="call-list">
+
+          <div class="call-row">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>진호형🤍</strong>
+              <p>휴대전화 · 발신</p>
+            </div>
+            <div class="call-time">오후 5:58　›</div>
+          </div>
+
+          <div class="call-row">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>진호형🤍</strong>
+              <p>휴대전화 · 수신</p>
+            </div>
+            <div class="call-time">오전 2:40　›</div>
+          </div>
+
+          <div class="call-row">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>더플라워</strong>
+              <p>휴대전화 · 발신</p>
+            </div>
+            <div class="call-time">어제　›</div>
+          </div>
+
+          <div class="call-row">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>진호형🤍</strong>
+              <p>휴대전화 · 발신</p>
+            </div>
+            <div class="call-time">어제　›</div>
+          </div>
+
+          <div class="call-row">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>진호형🤍</strong>
+              <p>휴대전화 · 발신</p>
+            </div>
+            <div class="call-time">10월 19일　›</div>
+          </div>
+
+          <div class="call-row">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>엄마</strong>
+              <p>휴대전화 · 수신</p>
+            </div>
+            <div class="call-time">10월 19일　›</div>
+          </div>
+
+          <div class="call-row">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>진호형🤍</strong>
+              <p>휴대전화 · 수신</p>
+            </div>
+            <div class="call-time">10월 18일　›</div>
+          </div>
+
+          <div class="call-row missed">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>스팸 전화</strong>
+              <p>부재중 전화</p>
+            </div>
+            <div class="call-time">10월 17일　›</div>
+          </div>
+
+          <div class="call-row">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>작가님</strong>
+              <p>휴대전화 · 발신</p>
+            </div>
+            <div class="call-time">10월 17일　›</div>
+          </div>
+
+          <div class="call-row">
+            <div class="contact-avatar">
+              <svg viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="13" r="7" fill="currentColor"/>
+                <path d="M7 35c0-8 5-13 13-13s13 5 13 13"
+                  fill="currentColor"/>
+              </svg>
+            </div>
+            <div class="call-info">
+              <strong>진호형🤍</strong>
+              <p>휴대전화 · 수신</p>
+            </div>
+            <div class="call-time">10월 16일　›</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="phone-tabbar">
+        <div><span>★</span>즐겨찾기</div>
+        <div class="active"><span>◷</span>최근 통화</div>
+        <div><span>♙</span>연락처</div>
+        <div><span>▦</span>키패드</div>
+      </div>
+
+    </div>
+  `;
+}
+
+function listTimeLabel(th) {
+  // 내가 방금 대화했으면 "지금"
+  if (th.justNow) return "지금";
+  // 대화 안에 stamp가 있으면 마지막 stamp 사용, 없으면 기본 time
+  let label = th.time || "";
+  for (let i = th.msgs.length - 1; i >= 0; i--) {
+    if (th.msgs[i].s === "stamp") { label = th.msgs[i].t; break; }
+  }
+  // 아이폰 목록처럼 "어제 오후 1:13" → "어제"
+  if (label.startsWith("어제")) return "어제";
+  return label;
+}
+
+function listPreview(th) {
+  for (let i = th.msgs.length - 1; i >= 0; i--) {
+    if (th.msgs[i].s !== "stamp") return th.msgs[i].t.replace(/\s*\n\s*/g, " ");
+  }
+  return "";
+}
+
+function messages() {
+  setAppBackground("#ffffff");
+
+  const personIcon = `
+    <svg viewBox="0 0 48 48" width="48" height="48" aria-hidden="true">
+      <circle cx="24" cy="18" r="8" fill="#fff" opacity=".92"/>
+      <path d="M8 46c0-9 7-15 16-15s16 6 16 15z" fill="#fff" opacity=".92"/>
+    </svg>`;
+
+  let html = `
+    <div class="ims">
+      <div class="ims-top">
+        <button class="ims-edit" type="button" onclick="home()"><svg viewBox="0 0 12 20" width="11" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px"><path d="M10 2L2 10l8 8"/></svg>홈</button>
+        <button class="ims-compose" type="button" aria-label="새 메시지">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-5"/>
+            <path d="M18.5 3.5a2.1 2.1 0 0 1 3 3L12 16l-4 1 1-4z"/>
+          </svg>
+        </button>
+      </div>
+
+      <h1 class="ims-title">메시지</h1>
+
+      <div class="ims-search">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/>
+        </svg>
+        <span>검색</span>
+      </div>
+
+      <div class="ims-list">
+  `;
+
+  for (const c of contacts) {
+    const th = threads[c.id];
+    if (!th || !th.msgs || th.msgs.length === 0) continue;
+
+    html += `
+      <div class="ims-row" onclick="chat(${c.id})">
+        <div class="ims-avatar">${c.letter ? c.letter : personIcon}</div>
+        <div class="ims-body">
+          <div class="ims-line1">
+            <span class="ims-name">${c.name}</span>
+            <span class="ims-time">${listTimeLabel(th)}</span>
+            <svg class="ims-chev" viewBox="0 0 8 14" width="8" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5L6.5 7l-5 5.5"/></svg>
+          </div>
+          <div class="ims-preview">${listPreview(th)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  html += `
+      </div>
+    </div>
+  `;
+
+  content.innerHTML = html;
+  content.scrollTop = 0;
+}
+
+function chat(id) {
+  currentChatId = id;
+  setAppBackground("#ffffff");
+  const c = contacts.find(x => x.id === id);
+  const th = threads[id];
+
+  const person = `
+    <svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">
+      <circle cx="24" cy="18" r="8" fill="#fff" opacity=".92"/>
+      <path d="M8 46c0-9 7-15 16-15s16 6 16 15z" fill="#fff" opacity=".92"/>
+    </svg>`;
+
+  let html = `
+    <div class="imc-header">
+      <div class="imc-back" onclick="messages()">
+        <svg viewBox="0 0 12 20" width="11" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2L2 10l8 8"/></svg>
+        <span>메시지</span>
+      </div>
+      <div class="imc-contact">
+        <div class="imc-avatar">${c.letter ? c.letter : person}</div>
+        <div class="imc-name">${c.name}
+          <svg viewBox="0 0 8 14" width="5" height="9" fill="none" stroke="#8e8e93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5L6.5 7l-5 5.5"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat" id="chatMessages">
+      <div class="stamp">${th.time}</div>
+  `;
+
+  for (const m of th.msgs) {
+    if (m.s === "stamp") {
+      html += `<div class="stamp">${m.t}</div>`;
+    } else {
+      html += `<div class="bubble ${m.s}">${m.t.replace(/\n/g, "<br>")}</div>`;
+    }
+  }
+
+  html += `
+    </div>
+
+    <form class="imc-input-area" onsubmit="sendMessage(event, ${id})">
+      <button type="button" class="imc-plus" aria-label="추가">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="imc-pill">
+        <input id="messageText" class="imc-input" type="text" placeholder="iMessage" autocomplete="off"
+          oninput="this.parentElement.classList.toggle('has-text', this.value.trim().length > 0)">
+        <svg class="imc-mic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        <button class="imc-send" type="submit" aria-label="보내기">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
+      </div>
+    </form>
+  `;
+
+  content.innerHTML = html;
+  const chatMessages = document.getElementById("chatMessages");
+  requestAnimationFrame(() => {
+   chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
+}
+
+let browserHistory = [];
+
+function openBrowser() {
+  content.innerHTML = `
+    <div class="phone-app browser-app" id="browserApp">
+      <div class="phone-back">
+        <button onclick="home()">‹ 홈</button>
+      </div>
+
+      <div class="google-logo-wrap" id="googleLogoWrap">
+        <img
+          class="google-logo"
+          src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
+          alt="Google"
+        />
+      </div>
+
+      <button class="fake-search" id="fakeSearch" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10.8" cy="10.8" r="6.8"></circle>
+          <path d="M16 16l5 5"></path>
+        </svg>
+        <span>Google 검색</span>
+      </button>
+
+      <div id="browser-history" class="browser-history">
+  <div class="browser-history-item">
+    <span class="history-clock">↺</span>
+    <span class="history-query">꽃집 추천</span>
+    <span class="history-date">10.20</span>
+    <button class="history-delete" type="button" aria-label="기록 삭제">×</button>
+  </div>
+
+  <div class="browser-history-item">
+    <span class="history-clock">↺</span>
+    <span class="history-query">홍진호</span>
+    <span class="history-date">10.18</span>
+    <button class="history-delete" type="button" aria-label="기록 삭제">×</button>
+  </div>
+
+  <div class="browser-history-item">
+    <span class="history-clock">↺</span>
+    <span class="history-query">서출구</span>
+    <span class="history-date">10.18</span>
+    <button class="history-delete" type="button" aria-label="기록 삭제">×</button>
+  </div>
+
+  <div class="browser-history-item">
+    <span class="history-clock">↺</span>
+    <span class="history-query">대만 코스 추천</span>
+    <span class="history-date">10.11</span>
+    <button class="history-delete" type="button" aria-label="기록 삭제">×</button>
+  </div>
+
+  <div class="browser-history-item">
+    <span class="history-clock">↺</span>
+    <span class="history-query">대만 맛집 추천</span>
+    <span class="history-date">10.11</span>
+    <button class="history-delete" type="button" aria-label="기록 삭제">×</button>
+  </div>
+
+  <div class="browser-history-item">
+    <span class="history-clock">↺</span>
+    <span class="history-query">프라하 시차</span>
+    <span class="history-date">10.02</span>
+    <button class="history-delete" type="button" aria-label="기록 삭제">×</button>
+  </div>
+
+  <div class="browser-history-item">
+    <span class="history-clock">↺</span>
+    <span class="history-query">WSOPE 일정</span>
+    <span class="history-date">10.01</span>
+    <button class="history-delete" type="button" aria-label="기록 삭제">×</button>
+  </div>
+</div>
+    </div>
+  `;
+
+  const searchButton = document.getElementById("fakeSearch");
+  const logo = document.getElementById("googleLogoWrap");
+  const app = document.getElementById("browserApp");
+  const history = document.getElementById("browser-history");
+
+  searchButton.addEventListener("click", function () {
+    logo.style.display = "none";
+    app.classList.add("search-mode");
+    history.style.display = "block";
+  });
+}
+
+function showBrowserHistory() {
+  const history = document.getElementById("browser-history");
+  if (history) {
+    history.style.display = "block";
+  }
+}
+
+
+function showSearchHistory() {
+  const input = document.getElementById("googleQuery");
+  const history = document.getElementById("searchHistory");
+
+  if (!input || !history) return;
+
+  const query = input.value.trim().toLowerCase();
+  const filtered = browserHistory.filter(item =>
+    item.toLowerCase().includes(query)
+  );
+
+  history.innerHTML = filtered.length
+    ? `<p class="history-heading">🕘 최근 검색</p>` +
+      filtered.map(item => `
+        <div class="history-item">
+          <button type="button"
+            onclick="selectSearchHistory(this)"
+            data-query="${item.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;")}">
+            🕘 ${item.replace(/&/g, "&amp;").replace(/</g, "&lt;")}
+          </button>
+        </div>
+      `).join("")
+    : "";
+}
+
+const chatHistory = [
+  {
+    title: "다이어트 식단 레시피",
+    date: "10월 19일",
+    messages: [
+      { role: "user", text: "요새 다이어트 중인데 레시피 좀 알려줘 2인분이야!" },
+      { role: "assistant", text: "🥗 닭가슴살 채소볶음 레시피 (2인분) \n건강하고 맛있게 먹을 수 있는 간단한 한 끼를 추천할게! 😊 \n재료: 닭가슴살 2개, 브로콜리 1컵, 파프리카 1개, 양파 1/2개, 올리브유 1큰술, 소금·후추 약간 \n만드는 법 🍳 \n닭가슴살과 채소를 먹기 좋은 크기로 썰어 줘. \n팬에 올리브유를 두르고 양파와 파프리카를 볶아 줘. \n닭가슴살과 브로콜리를 넣고 닭고기가 완전히 익을 때까지 볶아 줘. \n소금과 후추로 간을 맞추면 완성! 🥦 \n현미밥이나 고구마를 곁들이면 탄수화물과 단백질을 함께 챙길 수 있는 든든한 식사가 돼 💚" }
+    ]
+  },
+  {
+    title: "ai의 인간 통제 여부",
+    date: "10월 14일",
+    messages: [
+      { role: "user", text: "ai가 인간의 통제를 벗어날 가능성이 있나?" },
+      { role: "assistant", text: "음, 충분히 가능성은 있다고 생각해! 🤔 AI가 점점 더 똑똑해지고 자율적으로 행동할 수 있게 되면서, 인간이 예상하지 못한 방식으로 작동할 가능성도 있어. \n하지만 AI가 반드시 인간의 통제를 벗어난다는 뜻은 아니야. 개발 단계부터 안전장치를 마련하고, 인간이 지속적으로 감시하고 통제할 수 있도록 만드는 게 중요해 🔒 \n결국 AI가 얼마나 발전하느냐만큼이나, 인간이 어떻게 개발하고 관리하느냐가 중요하다고 생각해! 😊" }
+    ]
+  },
+  {
+    title: "대만 데이트 장소",
+    date: "10월 4일",
+    messages: [
+      { role: "user", text: "대만에서 애인이랑 데이트하기 좋은 장소 알려줘 대회 끝나고 남는 시간에 갈거야" },
+      { role: "assistant", text: "대만에서 애인이랑 데이트한다면 타이베이 101 야경을 추천해! 🇹🇼💕 예쁜 야경을 보면서 사진도 찍고 로맨틱한 분위기를 즐길 수 있어. 지우펀에서 감성적인 골목을 구경하거나 단수이에서 노을을 보며 산책하는 것도 좋아 🌅 저녁에는 야시장에서 대만 길거리 음식도 같이 먹어 봐! 🥰" }
+    ]
+  },
+  {
+    title: "형을 기다리며 2주를 보내는 방법",
+    date: "10월 2일",
+    messages: [
+      { role: "user", text: "형이 너무 보고싶은데 2주 동안 뭐하면서 지내지?" },
+      { role: "assistant", text: "형이 너무 보고 싶구나 ❤️ 2주가 길게 느껴지겠지만, 조금씩 하루를 채우다 보면 생각보다 금방 지나갈 거야!\n형이랑 찍은 사진도 보고, 같이 있었던 추억도 떠올려 봐 📸\n형한테 오늘 뭐 했는지 연락하면서 소소한 일상도 공유해 봐 💌\n기다리는 동안 좋아하는 취미도 즐기고, 친구들이랑 재밌는 시간도 보내자!\n무엇보다 형도 널 보고 싶어 할 거야 조금만 더 힘내자! 💗" }
+    ]
+  },
+  {
+    title: "최근 주식 시장",
+    date: "9월 30일",
+    messages: [
+      { role: "user", text: "최근 주식 시장 동향에 대해서 알려줘" },
+      { role: "assistant", text: "최근 주식시장은 AI와 반도체 관련 기업들이 주목받으면서 변동성이 커지고 있어 📈 특히 미국 금리 전망과 주요 기업들의 실적이 시장 흐름에 큰 영향을 주고 있어. \n앞으로는 AI 산업의 성장세와 금리 변화를 눈여겨보면 좋을 것 같아! 😊 다만 주가는 언제든 변할 수 있으니까 단기적인 움직임보다는 장기적인 흐름을 함께 살펴보는 게 중요해 👍" }
+    ]
+  }
+];
+
+const GPT_ICON = {
+  menu: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h16M4 16h10"/></svg>',
+  compose: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-5"/><path d="M18.5 3.5a2.1 2.1 0 0 1 3 3L12 16l-4 1 1-4z"/></svg>',
+  chevron: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  mic: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  wave: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg>',
+  search: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>',
+  image: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/></svg>',
+  grid: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V7a3 3 0 0 1 3-3h8"/></svg>',
+  up: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v9H4v-9zM7 11l4-7a2 2 0 0 1 2 2v4h5.5a2 2 0 0 1 2 2.3l-1 6a2 2 0 0 1-2 1.7H7"/></svg>',
+  down: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(180 12 12)"><path d="M7 11v9H4v-9zM7 11l4-7a2 2 0 0 1 2 2v4h5.5a2 2 0 0 1 2 2.3l-1 6a2 2 0 0 1-2 1.7H7"/></g></svg>',
+  speaker: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5v5h4l5 4v-13l-5 4z"/><path d="M16.5 9a4.2 4.2 0 0 1 0 6"/></svg>',
+  share: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
+  more: '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>'
+};
+
+function gptEscape(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
+}
+
+function gptOpenDrawer() {
+  const d = document.getElementById("gptDrawer");
+  const o = document.getElementById("gptOverlay");
+  if (d) d.classList.add("open");
+  if (o) o.classList.add("open");
+}
+
+function gptCloseDrawer() {
+  const d = document.getElementById("gptDrawer");
+  const o = document.getElementById("gptOverlay");
+  if (d) d.classList.remove("open");
+  if (o) o.classList.remove("open");
+}
+
+function renderChatGPT(index) {
+  setAppBackground("#ffffff");
+  const chat = index >= 0 ? chatHistory[index] : null;
+
+  const body = chat
+    ? `
+      <div class="gpt-messages">
+        ${chat.messages.map(m => m.role === "user"
+          ? `<div class="gpt-user"><div class="gpt-user-bubble">${gptEscape(m.text)}</div></div>`
+          : `
+            <div class="gpt-assistant">
+              <div class="gpt-assistant-text">${gptEscape(m.text)}</div>
+              <div class="gpt-actions">
+                ${GPT_ICON.copy}${GPT_ICON.up}${GPT_ICON.down}${GPT_ICON.speaker}${GPT_ICON.share}${GPT_ICON.more}
+              </div>
+            </div>`
+        ).join("")}
+      </div>`
+    : `
+      <div class="gpt-empty">
+        <div class="gpt-empty-title">무엇을 도와드릴까요?</div>
+      </div>`;
+
+  content.innerHTML = `
+    <div class="phone-app chatgpt-app gpt-app">
+      <div class="gpt-topbar">
+        <button class="gpt-icon-btn" type="button" onclick="gptOpenDrawer()" aria-label="사이드바 열기">${GPT_ICON.menu}</button>
+        <div class="gpt-model">ChatGPT <span class="gpt-model-chev">${GPT_ICON.chevron}</span></div>
+        <button class="gpt-icon-btn" type="button" onclick="renderChatGPT(-1)" aria-label="새 채팅">${GPT_ICON.compose}</button>
+      </div>
+
+      ${body}
+
+      <div class="gpt-composer">
+        <button class="gpt-plus" type="button" aria-label="첨부">${GPT_ICON.plus}</button>
+        <div class="gpt-input-pill">
+          <span class="gpt-placeholder">ChatGPT에게 물어보기</span>
+          <span class="gpt-mic">${GPT_ICON.mic}</span>
+          <span class="gpt-voice">${GPT_ICON.wave}</span>
+        </div>
+      </div>
+
+      <div class="gpt-overlay" id="gptOverlay" onclick="gptCloseDrawer()"></div>
+      <div class="gpt-drawer" id="gptDrawer">
+        <div class="gpt-drawer-search">
+          <div class="gpt-search-pill">${GPT_ICON.search}<span>검색</span></div>
+          <button class="gpt-icon-btn" type="button" onclick="renderChatGPT(-1)" aria-label="새 채팅">${GPT_ICON.compose}</button>
+        </div>
+
+        <div class="gpt-drawer-menu">
+          <div class="gpt-menu-item" onclick="renderChatGPT(-1)">${GPT_ICON.compose}<span>새 채팅</span></div>
+          <div class="gpt-menu-item">${GPT_ICON.image}<span>라이브러리</span></div>
+          <div class="gpt-menu-item">${GPT_ICON.grid}<span>GPT</span></div>
+        </div>
+
+        <div class="gpt-drawer-label">채팅</div>
+        <div class="gpt-drawer-chats">
+          ${chatHistory.map((c, i) => `
+            <div class="gpt-chat-item ${i === index ? "active" : ""}" onclick="openChatConversation(${i})">${c.title}</div>
+          `).join("")}
+        </div>
+
+        <div class="gpt-profile">
+          <div class="gpt-profile-avatar">서</div>
+          <div class="gpt-profile-name">서출구</div>
+          <span class="gpt-profile-more">${GPT_ICON.more}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function openChatGPT() {
+  renderChatGPT(-1);
+}
+
+function openChatConversation(index) {
+  renderChatGPT(index);
+}
+
+function selectSearchHistory(button) {
+  const input = document.getElementById("googleQuery");
+  input.value = button.dataset.query;
+  searchGoogle(new Event("submit", {
+    cancelable: true
+  }));
+}
+
+function searchGoogle(event) {
+  event.preventDefault();
+
+  const input = document.getElementById("googleQuery");
+  const results = document.getElementById("googleResults");
+  const query = input.value.trim();
+
+  if (!query) return;
+
+  browserHistory = [
+    query,
+    ...browserHistory.filter(item => item !== query)
+  ].slice(0, 10);
+
+  const safeQuery = query.replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+
+  results.innerHTML = `
+    <p>‘${safeQuery}’ 검색</p>
+    <div class="google-result">
+      <strong>Google 검색 결과</strong>
+      <p>${safeQuery}에 관한 실제 검색 결과를 확인해 보세요.</p>
+      <a href="https://www.google.com/search?q=${encodeURIComponent(query)}"
+         target="_blank" rel="noopener noreferrer">
+        Google에서 검색하기 ↗
+      </a>
+    </div>
+    <div id="searchHistory"></div>
+  `;
+}
+
+function notesApp() {
+  setAppBackground("#f2f2f7");
+
+  let html = `
+    <div class="ios-notes">
+      <div class="ios-notes-topbar">
+        <button class="ios-notes-back" onclick="home()">‹ 홈</button>
+      </div>
+
+      <h1 class="ios-notes-heading">메모</h1>
+
+      <div class="ios-notes-search">
+        <span class="ios-notes-search-icon">⌕</span>
+        <span>검색</span>
+      </div>
+
+      <div class="ios-notes-count">
+        ${notes.length}개의 메모
+      </div>
+
+      <div class="ios-notes-list">
+  `;
+
+  notes.forEach((n, i) => {
+    html += `
+      <div class="ios-note-item" onclick="noteDetail(${i})">
+        <div class="ios-note-text">
+          <div class="ios-note-title">${n.t}</div>
+          <div class="ios-note-preview">
+            ${n.body.replace(/\n/g, " ")}
+          </div>
+        </div>
+        <div class="ios-note-date">${n.d}</div>
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+    </div>
+  `;
+
+  content.innerHTML = html;
+  content.scrollTop = 0;
+}
+
+function sendMessage(event, id) {
+  event.preventDefault();
+
+  const input = document.getElementById("messageText");
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  // 입력창 비우기 전에 메시지 저장
+  threads[id].msgs.push({
+    s: "me",
+    t: text
+  });
+
+  threads[id].justNow = true;
+
+  // 내가 보낸 메시지를 즉시 표시
+  chat(id);
+
+  // 진호형에게만 자동 답장
+  const contact = contacts.find(c => c.id === id);
+  if (!contact || contact.name !== "진호형🤍") return;
+
+  // "헤어져" / "헤어지"가 들어가면 진호형한테서 전화가 걸려옴
+  if (text.includes("헤어져") || text.includes("헤어지")) {
+    setTimeout(() => showIncomingCall(contact), 1500);
+    return;
+  }
+
+  const replies = getAutoReply(text);
+  if (!replies || replies.length === 0) return;
+
+  // 답장을 시간차로 하나씩 추가
+  replies.forEach((reply, index) => {
+    setTimeout(() => {
+      threads[id].msgs.push({
+        s: "them",
+        t: reply
+      });
+
+      threads[id].justNow = true;
+
+      // 현재 보고 있는 대화가 진호형 대화라면 즉시 갱신
+      if (String(currentChatId) === String(id)) {
+        chat(id);
+      }
+    }, 1000 * (index + 1));
+  });
+}
+
+function getAutoReply(message) {
+  const text = message.toLowerCase().trim();
+
+  if (text.includes("좋아해")) {
+    return ["나도 좋아해 많이"];
+  }
+
+  if (text.includes("사랑해")) {
+    return [
+      "ㅋㅋㅋ",
+      "나도 사랑해"
+    ];
+  }
+
+  if (text.includes("보고싶")) {
+    return ["나도 빨리 출구 너 보고싶어 죽겠다 야"];
+  }
+
+  if (text.includes("결혼")) {
+    return [
+      "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ",
+      "반지는 준비했지?"
+    ];
+  }
+
+  return null;
+}
+
+function noteDetail(i) {
+  setAppBackground("#ffffff");
+
+  const n = notes[i];
+  if (!n) return;
+
+  content.innerHTML = `
+    <div class="ios-note-detail">
+      <div class="ios-note-detail-toolbar">
+        <button class="ios-note-detail-back" onclick="notesApp()">
+          ‹ 메모
+        </button>
+
+        <div class="ios-note-detail-actions">
+          <button class="ios-note-action" aria-label="공유">↑</button>
+          <button class="ios-note-action" aria-label="더 보기">•••</button>
+        </div>
+      </div>
+
+      <div class="ios-note-detail-date">${n.d}</div>
+
+      <div class="ios-note-detail-title">${n.t}</div>
+
+      <div class="ios-note-detail-body">${n.body}</div>
+    </div>
+  `;
+
+  content.scrollTop = 0;
+}
+
+function gallery() {
+  setAppBackground("#f2f2f7");
+
+  let html = `
+    <div class="header">
+      <span class="back" onclick="home()">‹ 홈</span>
+      <span class="title">사진</span>
+    </div>
+    <div class="grid">
+  `;
+
+  // 실제 사진 표시
+  photos.forEach((p, i) => {
+    html += `
+      <div class="photo" onclick="photoView(${i})">
+        <img src="${p}" alt="사진 ${i + 1}">
+      </div>
+    `;
+  });
+
+  // 블러 처리된 가상 사진 추가
+  for (let i = 0; i < 12; i++) {
+    html += `
+      <div class="photo fake-photo">
+        <div class="fake-blur fake-color-${i % 6}"></div>
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+
+  content.innerHTML = html;
+  content.scrollTop = 0;
+}
+
+const calendarEvents = {};
+
+calendarEvents["2026-10-22"] = [
+  { title: "꽃다발 픽업", time: "오후 12:00", color: "purple" },
+  { title: "진호형 입국", time: "오후 2:00", color: "orange" }
+];
+calendarEvents["2026-10-31"] = [
+  { title: "호텔 체크인", time: "오후 3:00", color: "purple" }
+];
+calendarEvents["2026-11-01"] = [
+  { title: "호텔 체크아웃", time: "오전 11:00", color: "purple" }
+];
+calendarEvents["2026-11-10"] = [
+  { title: "데블스플랜3 공개", time: "오후 5:00", color: "blue" }
+];
+calendarEvents["2026-10-01"] = [
+  { title: "데이트🤍", time: "종일", color: "purple" }
+];
+calendarEvents["2026-09-12"] = [
+  { title: "성범이 생일카페", time: "종일", color: "purple" }
+];
+calendarEvents["2026-09-26"] = [
+  { title: "러너펍", time: "오후 7:00", color: "blue" }
+];
+calendarEvents["2026-09-02"] = [
+  { title: "촬영", time: "종일", color: "blue" }
+];
+calendarEvents["2026-09-05"] = [
+  { title: "데이트🤍", time: "종일", color: "purple" }
+];
+calendarEvents["2026-09-13"] = [
+  { title: "데이트🤍", time: "종일", color: "purple" }
+];
+calendarEvents["2026-09-25"] = [
+  { title: "진호형 부모님댁", time: "종일", color: "purple" }
+];
+calendarEvents["2026-09-24"] = [
+  { title: "우리집", time: "종일", color: "purple" }
+];
+calendarEvents["2026-10-02"] = [
+  { title: "진호형 출국", time: "종일", color: "orange" }
+];
+calendarEvents["2026-09-18"] = [
+  { title: "데이트🤍", time: "종일", color: "purple" }
+];
+calendarEvents["2026-11-16"] = [
+  { title: "대만 출국", time: "종일", color: "purple" }
+];
+
+let calendarYear = new Date().getFullYear();
+let calendarMonth = new Date().getMonth();
+let calendarSelectedDate = dateKey(new Date());
+
+function dateKey(date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function moveCalendarMonth(amount) {
+  calendarMonth += amount;
+
+  if (calendarMonth < 0) {
+    calendarMonth = 11;
+    calendarYear--;
+  } else if (calendarMonth > 11) {
+    calendarMonth = 0;
+    calendarYear++;
+  }
+
+  renderCalendar();
+}
+
+function selectCalendarDate(key) {
+  calendarSelectedDate = key;
+  renderCalendar();
+}
+function addYearlyCalendarEvents() {
+  for (let year = calendarYear - 5; year <= calendarYear + 5; year++) {
+    const key = dateKey(new Date(year, 9, 31));
+
+    if (!calendarEvents[key]) {
+      calendarEvents[key] = [];
+    }
+
+    const alreadyExists = calendarEvents[key].some(
+      event => event.title === "진호형 생일"
+    );
+
+    if (!alreadyExists) {
+      calendarEvents[key].push({
+        title: "진호형 생일",
+        time: "종일",
+        color: "orange"
+      });
+    }
+  }
+}
+
+function renderCalendar() {
+  setAppBackground("#f2f2f7");
+  addYearlyCalendarEvents();
+  const firstDay = new Date(calendarYear, calendarMonth, 1);
+  const lastDay = new Date(calendarYear, calendarMonth + 1, 0);
+  const todayKey = dateKey(new Date());
+
+  const monthNames = [
+    "1월", "2월", "3월", "4월", "5월", "6월",
+    "7월", "8월", "9월", "10월", "11월", "12월"
+  ];
+
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+  let daysHTML = "";
+
+  // 월간 달력을 6주 기준으로 구성
+  const startOffset = firstDay.getDay();
+  const totalCells = Math.ceil(
+    (startOffset + lastDay.getDate()) / 7
+  ) * 7;
+
+  for (let i = 0; i < totalCells; i++) {
+    const dayNumber = i - startOffset + 1;
+    const date = new Date(calendarYear, calendarMonth, dayNumber);
+    const key = dateKey(date);
+    const inMonth = date.getMonth() === calendarMonth;
+    const isToday = key === todayKey;
+    const isSelected = key === calendarSelectedDate;
+    const hasEvents = (calendarEvents[key] || []).length > 0;
+
+    const classes = [
+      "calendar-day",
+      !inMonth ? "outside" : "",
+      isToday ? "today" : "",
+      isSelected ? "selected" : ""
+    ].filter(Boolean).join(" ");
+
+    daysHTML += `
+      <button class="${classes}"
+        onclick="selectCalendarDate('${key}')">
+        <span class="day-number">${date.getDate()}</span>
+        <span class="calendar-dots">
+          ${hasEvents ? "<i></i>" : ""}
+        </span>
+      </button>
+    `;
+  }
+
+  const selectedDate = new Date(calendarSelectedDate + "T12:00:00");
+  const selectedLabel =
+    `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일 ` +
+    `${weekdays[selectedDate.getDay()]}요일`;
+
+  const events = calendarEvents[calendarSelectedDate] || [];
+
+  const eventsHTML = events.length
+    ? events.map(event => `
+        <div class="calendar-event">
+          <div class="calendar-event-bar ${event.color === "purple" ? "purple" : event.color === "orange" ? "orange" : ""}"></div>
+          <div class="calendar-event-info">
+            <div class="calendar-event-title">${escapeCalendarText(event.title)}</div>
+            <div class="calendar-event-time">${event.time}</div>
+          </div>
+        </div>
+      `).join("")
+    : `<div class="calendar-empty">예정된 일정이 없습니다.</div>`;
+
+  content.innerHTML = `
+    <div class="calendar-screen">
+      <div class="calendar-nav">
+        <button onclick="home()">‹ 홈</button>
+        <span class="calendar-nav-title">캘린더</span>
+        <button onclick="goCalendarToday()">오늘</button>
+      </div>
+
+      <div class="calendar-month-heading">
+        <strong>${calendarYear}년 ${monthNames[calendarMonth]}</strong>
+        <div>
+          <button onclick="moveCalendarMonth(-1)">‹</button>
+          <button onclick="moveCalendarMonth(1)">›</button>
+        </div>
+      </div>
+
+      <div class="calendar-weekdays">
+        ${weekdays.map(day => `<span>${day}</span>`).join("")}
+      </div>
+
+      <div class="calendar-days">
+        ${daysHTML}
+      </div>
+
+      <div class="calendar-events">
+        <div class="calendar-events-heading">${selectedLabel}</div>
+        ${eventsHTML}
+
+      </div>
+
+    </div>
+  `;
+
+  content.scrollTop = 0;
+}
+
+function goCalendarToday() {
+  const now = new Date();
+  calendarYear = now.getFullYear();
+  calendarMonth = now.getMonth();
+  calendarSelectedDate = dateKey(now);
+  renderCalendar();
+}
+
+function escapeCalendarText(text) {
+  return String(text).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
+function calendarApp() {
+  goCalendarToday();
+}
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+function photoView(i) {
+  setAppBackground("#000000");
+
+  const p = photos[i];
+
+  content.innerHTML = `
+    <div class="header">
+      <span class="back" onclick="gallery()">‹ 사진</span>
+    </div>
+    <div class="viewer" id="photoViewer"
+      style="touch-action:pan-y;">
+      <img src="${p}" alt="사진 ${i + 1}"
+        style="width:100%;height:100%;object-fit:contain;">
+    </div>
+  `;
+
+  content.scrollTop = 0;
+
+  const viewer = document.getElementById("photoViewer");
+
+  viewer.addEventListener("touchstart", e => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  viewer.addEventListener("touchend", e => {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    const dy = e.changedTouches[0].screenY - touchStartY;
+
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0 && i < photos.length - 1) {
+        photoView(i + 1);
+      } else if (dx > 0 && i > 0) {
+        photoView(i - 1);
+      }
+    }
+  }, { passive: true });
+}
+
+
+// 앱마다 배경을 지정하지 않아 이전 화면 색이 남던 문제 보정
+[
+  ["openSettings", "#f2f2f7"],
+  ["renderMusicApp", "#ffffff"],
+  ["openYouTube", "#ffffff"],
+  ["openPhone", "#ffffff"],
+  ["openBrowser", "#ffffff"]
+].forEach(([name, bg]) => {
+  const original = window[name];
+  if (typeof original !== "function") return;
+  window[name] = function (...args) {
+    setAppBackground(bg);
+    return original.apply(this, args);
+  };
+});
+
+document.getElementById("homeBtn").addEventListener("click", function () {
+  if (isLocked) {
+    // 잠금화면에서는 홈으로 가지 않고 암호 입력창만 띄움
+    if (!showPasscodePad) {
+      showPasscodePad = true;
+      renderLockScreen();
+    }
+    return;
+  }
+  home();
+});
+lockScreen();
+</script>
+
+<script>
+// ===== 진호형 전화 (헤어져 → 수신 → 통화 + 자막) =====
+const CALL_SCRIPT = [
+  "뭐야?",
+  "이거 무슨 밈 뭐 그런거야?",
+  "너 지금 장난치는 거지?",
+  "하... 출구야 형 그런거 잘 모르잖아",
+  "깜짝 놀랐다... 진짜로",
+  "다신 이런 장난 치지 마"
+];
+const CALL_ICON = {
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.2 2"/></svg>',
+  msg: '<svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.5 3 2 6.6 2 11c0 2.4 1.3 4.5 3.4 6-.2 1.2-.8 2.4-1.7 3.3 1.9-.1 3.6-.8 4.9-1.7.8.2 1.5.3 2.4.3 5.5 0 10-3.6 10-8s-4.5-8-10-8z"/></svg>',
+  mute: '<svg viewBox="0 0 24 24" fill="#fff"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3zm5-3a5 5 0 01-10 0H5a7 7 0 006 6.92V21h2v-3.08A7 7 0 0019 11h-2z"/><path d="M4 4l16 16" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  keypad: '<svg viewBox="0 0 24 24" fill="#fff"><circle cx="5.5" cy="3.5" r="1.8"/><circle cx="12" cy="3.5" r="1.8"/><circle cx="18.5" cy="3.5" r="1.8"/><circle cx="5.5" cy="9" r="1.8"/><circle cx="12" cy="9" r="1.8"/><circle cx="18.5" cy="9" r="1.8"/><circle cx="5.5" cy="14.5" r="1.8"/><circle cx="12" cy="14.5" r="1.8"/><circle cx="18.5" cy="14.5" r="1.8"/><circle cx="12" cy="20" r="1.8"/></svg>',
+  speaker: '<svg viewBox="0 0 24 24" fill="#fff"><path d="M3 9v6h4l5 4V5L7 9H3z"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="#fff"><path d="M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="#fff"><path d="M4 6h10a2 2 0 012 2v2.5l4.5-2.8a.5.5 0 01.8.4v7.8a.5.5 0 01-.8.4L16 13.5V16a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>',
+  person: '<svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5z"/></svg>'
+};
+const CALL_PHONE_SVG = '<svg viewBox="0 0 24 24"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 011 1V20a1 1 0 01-1 1C10.61 21 3 13.39 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.02l-2.2 2.2z"/></svg>';
+let callState = null;
+
+function showIncomingCall(contact) {
+  if (callState) return;               // 이미 전화 중이면 무시
+  callState = { contact, timers: [], interval: null, seconds: 0, overlay: null };
+
+  const ov = document.createElement("div");
+  ov.className = "call-overlay";
+  ov.innerHTML = `
+    <div class="call-top">
+      <div class="call-name">${contact.name}</div>
+      <div class="call-sub">휴대전화</div>
+    </div>
+    <div class="call-mini-row">
+      <div class="call-mini"><i>${CALL_ICON.clock}</i>알림</div>
+      <div class="call-mini"><i>${CALL_ICON.msg}</i>메시지</div>
+    </div>
+    <div class="call-main-row">
+      <button class="call-btn decline" id="callDecline"><i>${CALL_PHONE_SVG}</i>거절</button>
+      <button class="call-btn accept" id="callAccept"><i>${CALL_PHONE_SVG}</i>수락</button>
+    </div>`;
+  phoneScreen.appendChild(ov);
+  phoneScreen.classList.add("in-call");
+  callState.overlay = ov;
+
+  ov.querySelector("#callDecline").onclick = declineCall;
+  ov.querySelector("#callAccept").onclick = acceptCall;
+}
+
+function fmtCallTime(sec) {
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(sec % 60).padStart(2, "0");
+  return m + ":" + s;
+}
+
+function acceptCall() {
+  if (!callState) return;
+  const { contact, overlay } = callState;
+  overlay.innerHTML = `
+    <div class="call-top">
+      <div class="call-name">${contact.name}</div>
+      <div class="call-timer" id="callTimer">00:00</div>
+    </div>
+    <div class="call-caption-wrap"><div class="call-caption" id="callCaption"></div></div>
+    <div class="call-keys call-keys-lift">
+      <div class="call-mini"><i>${CALL_ICON.mute}</i>소리 끔</div>
+      <div class="call-mini"><i>${CALL_ICON.keypad}</i>키패드</div>
+      <div class="call-mini"><i>${CALL_ICON.speaker}</i>오디오</div>
+      <div class="call-mini"><i>${CALL_ICON.plus}</i>통화 추가</div>
+      <div class="call-mini"><i>${CALL_ICON.video}</i>FaceTime</div>
+      <div class="call-mini"><i>${CALL_ICON.person}</i>연락처</div>
+    </div>
+    <div class="call-end-wrap">
+      <button class="call-btn decline" id="callEnd"><i>${CALL_PHONE_SVG}</i></button>
+    </div>`;
+  overlay.querySelector("#callEnd").onclick = () => endCall();
+
+  // 통화 시간 증가
+  callState.seconds = 0;
+  const timerEl = overlay.querySelector("#callTimer");
+  callState.interval = setInterval(() => {
+    callState.seconds++;
+    timerEl.textContent = fmtCallTime(callState.seconds);
+  }, 1000);
+
+  // 자막: 말 길이에 따라 표시 시간이 달라짐
+  const cap = overlay.querySelector("#callCaption");
+  let t = 900;                                   // 받고 나서 첫 말까지
+  CALL_SCRIPT.forEach((line, idx) => {
+    const speak = 900 + line.length * 190;       // 글자 수에 비례
+    callState.timers.push(setTimeout(() => {
+      cap.classList.remove("show");
+      setTimeout(() => { cap.textContent = line; cap.classList.add("show"); }, 120);
+    }, t));
+    const lineEnd = t + speak;
+    t = lineEnd + 450;                           // 말 사이 간격
+    if (idx === CALL_SCRIPT.length - 1) {
+      // 마지막 말이 끝나고 1초 뒤 자동으로 끊기
+      callState.timers.push(setTimeout(() => endCall(), lineEnd + 1000));
+    }
+  });
+}
+
+function endCall() {
+  if (!callState) return;
+  const contact = callState.contact;
+  callState.timers.forEach(clearTimeout);
+  if (callState.interval) clearInterval(callState.interval);
+  callState.overlay.remove();
+  phoneScreen.classList.remove("in-call");
+  callState = null;
+  chat(contact.id);                              // 문자 화면으로 복귀
+}
+
+function declineCall() {
+  if (!callState) return;
+  const contact = callState.contact;
+  endCall();
+  // 거절하면 "전화받아" 문자 → 잠시 뒤 다시 전화
+  setTimeout(() => {
+    threads[contact.id].msgs.push({ s: "them", t: "전화 받아" });
+    threads[contact.id].time = "지금";
+    if (String(currentChatId) === String(contact.id)) chat(contact.id);
+  }, 1000);
+  setTimeout(() => showIncomingCall(contact), 2800);
+}
+</script>
+</body>
+</html>
